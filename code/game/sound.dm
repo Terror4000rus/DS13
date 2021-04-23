@@ -51,7 +51,8 @@ GLOBAL_LIST_INIT(lighter_sound,list('sound/items/lighter1.ogg','sound/items/ligh
 GLOBAL_LIST_INIT(keyboard_sound,list('sound/machines/keyboard/keypress1.ogg','sound/machines/keyboard/keypress2.ogg','sound/machines/keyboard/keypress3.ogg','sound/machines/keyboard/keypress4.ogg'))
 GLOBAL_LIST_INIT(keystroke_sound,list('sound/machines/keyboard/keystroke1.ogg','sound/machines/keyboard/keystroke2.ogg','sound/machines/keyboard/keystroke3.ogg','sound/machines/keyboard/keystroke4.ogg'))
 GLOBAL_LIST_INIT(switch_sound,list('sound/machines/switch1.ogg','sound/machines/switch2.ogg','sound/machines/switch3.ogg','sound/machines/switch4.ogg'))
-GLOBAL_LIST_INIT(button_sound,list('sound/machines/button1.ogg')) //there is only one dead space sound for this.
+GLOBAL_LIST_INIT(button_sound,list('sound/machines/button1.ogg'))
+GLOBAL_LIST_INIT(button2_sound,list('sound/machines/button2.ogg'))
 GLOBAL_LIST_INIT(chop_sound,list('sound/weapons/chop1.ogg','sound/weapons/chop2.ogg','sound/weapons/chop3.ogg'))
 GLOBAL_LIST_INIT(thud_sound,list('sound/effects/impacts/thud1.ogg','sound/effects/impacts/thud2.ogg','sound/effects/impacts/thud3.ogg'))
 GLOBAL_LIST_INIT(dooropen_sound,list('sound/machines/airlock_open.ogg','sound/machines/airlock_open2.ogg'))
@@ -61,6 +62,8 @@ GLOBAL_LIST_INIT(doorheavyclose_sound,list('sound/machines/airlock_heavy_close.o
 GLOBAL_LIST_INIT(interact_sound,list('sound/machines/vending_click.ogg'))
 GLOBAL_LIST_INIT(bubble_sound,list('sound/machines/tankbubble1.ogg','sound/machines/tankbubble2.ogg','sound/machines/tankbubble3.ogg'))
 GLOBAL_LIST_INIT(bubble_small_sound,list('sound/machines/tanksmallbubble1.ogg','sound/machines/tanksmallbubble2.ogg','sound/machines/tanksmallbubble3.ogg','sound/machines/tanksmallbubble4.ogg'))
+GLOBAL_LIST_INIT(fleshtear_sound, list('sound/effects/organic/flesh_tear_1.ogg','sound/effects/organic/flesh_tear_2.ogg','sound/effects/organic/flesh_tear_3.ogg',))
+
 
 /proc/playsound(var/atom/source, soundin, vol as num, vary, extrarange as num, falloff, var/is_global, var/frequency, var/is_ambiance = 0)
 
@@ -189,6 +192,7 @@ var/const/FALLOFF_SOUNDS = 0.5
 		if ("keystroke") soundin = pick(GLOB.keystroke_sound)
 		if ("switch") soundin = pick(GLOB.switch_sound)
 		if ("button") soundin = pick(GLOB.button_sound)
+		if ("button2") soundin = pick(GLOB.button2_sound)
 		if ("chop") soundin = pick(GLOB.chop_sound)
 		if ("thud") soundin = pick(GLOB.thud_sound)
 		if ("dooropen") soundin = pick(GLOB.dooropen_sound)
@@ -198,6 +202,7 @@ var/const/FALLOFF_SOUNDS = 0.5
 		if ("interact") soundin = pick(GLOB.interact_sound)
 		if ("bubble") soundin = pick(GLOB.bubble_sound)
 		if ("bubble_small") soundin = pick(GLOB.bubble_small_sound)
+		if ("fleshtear")	soundin = pick(GLOB.fleshtear_sound)
 	return soundin
 
 

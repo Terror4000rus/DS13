@@ -5,6 +5,7 @@ GLOBAL_LIST_EMPTY(adminfaxes)	//cache for faxes that have been sent to admins
 
 /obj/machinery/photocopier/faxmachine
 	name = "fax machine"
+	desc = "For secure document transmission. Somehow not obsolete yet."
 	icon = 'icons/obj/bureaucracy.dmi'
 	icon_state = "fax"
 	insert_anim = "faxsend"
@@ -95,8 +96,10 @@ GLOBAL_LIST_EMPTY(adminfaxes)	//cache for faxes that have been sent to admins
 		if(copyitem)
 			if (destination in admin_departments)
 				send_admin_fax(usr, destination)
+				playsound(src, 'sound/machines/button2.ogg', VOLUME_MID_HIGH)
 			else
 				sendfax(destination)
+				playsound(src, 'sound/machines/button2.ogg', VOLUME_MID_HIGH)
 
 			if (sendcooldown)
 				spawn(sendcooldown) // cooldown time
@@ -135,9 +138,11 @@ GLOBAL_LIST_EMPTY(adminfaxes)	//cache for faxes that have been sent to admins
 	if(href_list["auth"])
 		if ( (!( authenticated ) && (scan)) )
 			if (check_access(scan))
+				playsound(src, 'sound/machines/button2.ogg', VOLUME_MID_HIGH)
 				authenticated = 1
 
 	if(href_list["logout"])
+		playsound(src, 'sound/machines/button2.ogg', VOLUME_MID_HIGH)
 		authenticated = 0
 
 	updateUsrDialog()
@@ -187,7 +192,6 @@ GLOBAL_LIST_EMPTY(adminfaxes)	//cache for faxes that have been sent to admins
 /obj/machinery/photocopier/faxmachine/proc/send_admin_fax(var/mob/sender, var/destination)
 	if(stat & (BROKEN|NOPOWER))
 		return
-
 	use_power(200)
 
 	//recieved copies should not use toner since it's being used by admins only.
@@ -201,6 +205,10 @@ GLOBAL_LIST_EMPTY(adminfaxes)	//cache for faxes that have been sent to admins
 	else
 		visible_message("[src] beeps, \"Error transmitting message.\"")
 		return
+	if(sender.mind)
+		var/datum/extension/earthgov/earthgov = get_extension(sender.mind, /datum/extension/earthgov)
+		if(earthgov)
+			earthgov.on_admin_fax(copyitem, destination)
 
 	rcvdcopy.loc = null //hopefully this shouldn't cause trouble
 	GLOB.adminfaxes += rcvdcopy

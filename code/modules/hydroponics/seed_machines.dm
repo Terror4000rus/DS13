@@ -129,6 +129,7 @@
 /obj/machinery/botany/extractor
 	name = "lysis-isolation centrifuge"
 	icon_state = "traitcopier"
+	clicksound = "button2"
 
 	var/datum/seed/genetics // Currently scanned seed genetic structure.
 	var/degradation = 0     // Increments with each scan, stops allowing gene mods after a certain point.
@@ -245,8 +246,8 @@
 		loaded_disk.desc += " The label reads \'gene [plant_controller.gene_tag_masks[href_list["get_gene"]]], sampled from [genetics.display_name]\'."
 		eject_disk = 1
 
-		degradation += rand(20,60) + user.skill_fail_chance(SKILL_ANATOMY, 100, SKILL_ADEPT)
-		var/expertise = max(0, user.get_skill_value(SKILL_ANATOMY) - SKILL_ADEPT)
+		degradation += rand(20,60) + user.skill_fail_chance(SKILL_BOTANY, 100, SKILL_ADEPT)
+		var/expertise = max(0, user.get_skill_value(SKILL_BOTANY) - SKILL_ADEPT)
 		degradation = max(0, degradation - 10*expertise)
 
 		if(degradation >= 100)
@@ -268,6 +269,7 @@
 	name = "bioballistic delivery system"
 	icon_state = "traitgun"
 	disk_needs_genes = 1
+	clicksound = "button2"
 
 /obj/machinery/botany/editor/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = 1)
 

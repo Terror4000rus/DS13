@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(borers, /datum/antagonist/xenos/borer, new)
-
 /datum/antagonist/xenos/borer
 	id = MODE_BORER
 	role_text = "Cortical Borer"
@@ -16,6 +14,10 @@ GLOBAL_DATUM_INIT(borers, /datum/antagonist/xenos/borer, new)
 
 	initial_spawn_req = 3
 	initial_spawn_target = 5
+
+/datum/antagonist/xenos/borer/New()
+	..()
+	GLOB.borers = src
 
 /datum/antagonist/xenos/borer/get_extra_panel_options(var/datum/mind/player)
 	return "<a href='?src=\ref[src];move_to_spawn=\ref[player.current]'>\[put in host\]</a>"

@@ -17,7 +17,8 @@
 	w_class = ITEM_SIZE_SMALL
 	//price_tag = 200
 
-	var/prefix = "upgraded" //Added to the tool's name
+	var/adjective = "upgraded" //Added to the tool's name
+	var/adjective_type = ADJECTIVE_TYPE_OPINION	//Defines in _defines/text.dm, determines the order that adjectives appear
 
 	//The modification can be applied to a tool that has any of these qualities
 	var/list/required_qualities = list()
@@ -46,32 +47,32 @@
 /obj/item/weapon/tool_modification/examine(var/mob/user)
 	.=..()
 	if (precision > 0)
-		user << SPAN_NOTICE("Enhances precision by [precision]")
+		user << SPAN_NOTICE("Enhances precision by [precision].")
 	else if (precision < 0)
-		user << SPAN_WARNING("Reduces precision by [abs(precision)]")
+		user << SPAN_WARNING("Reduces precision by [abs(precision)].")
 	if (workspeed)
-		user << SPAN_NOTICE("Enhances workspeed by [workspeed*100]%")
+		user << SPAN_NOTICE("Enhances workspeed by [workspeed*100]%.")
 
 	if (degradation_mult < 1)
-		user << SPAN_NOTICE("Reduces tool degradation by [(1-degradation_mult)*100]%")
+		user << SPAN_NOTICE("Reduces tool degradation by [(1-degradation_mult)*100]%.")
 	else if	(degradation_mult > 1)
-		user << SPAN_WARNING("Increases tool degradation by [(degradation_mult-1)*100]%")
+		user << SPAN_WARNING("Increases tool degradation by [(degradation_mult-1)*100]%.")
 
 	if (force_mult != 1)
-		user << SPAN_NOTICE("Increases tool damage by [(force_mult-1)*100]%")
+		user << SPAN_NOTICE("Increases tool damage by [(force_mult-1)*100]%.")
 	if (force_mod)
-		user << SPAN_NOTICE("Increases tool damage by [force_mod]")
+		user << SPAN_NOTICE("Increases tool damage by [force_mod].")
 	if (powercost_mult != 1)
-		user << SPAN_WARNING("Modifies power usage by [(powercost_mult-1)*100]%")
+		user << SPAN_WARNING("Modifies power usage by [(powercost_mult-1)*100]%.")
 	if (fuelcost_mult != 1)
-		user << SPAN_WARNING("Modifies fuel usage by [(fuelcost_mult-1)*100]%")
+		user << SPAN_WARNING("Modifies fuel usage by [(fuelcost_mult-1)*100]%.")
 	if (bulk_mod)
-		user << SPAN_WARNING("Increases tool size by [bulk_mod]")
+		user << SPAN_WARNING("Increases tool size by [bulk_mod].")
 
 	if (!removeable)
-		user << SPAN_DANGER("This modification is permanant, it can never be removed once applied!")
+		user << SPAN_DANGER("This modification is permanent, it can never be removed once applied!")
 	else if (!recoverable)
-		user << SPAN_WARNING("This modification cannot be recovered or re-used. It will be destroyed if you remove it from a tool")
+		user << SPAN_WARNING("This modification cannot be recovered or re-used. It will be destroyed if you remove it from a tool.")
 
 	if (required_qualities.len)
 		user << SPAN_WARNING("Requires a tool with one of the following qualities:")
@@ -144,7 +145,7 @@
 	//No using multiples of the same modification
 	for (var/obj/item/weapon/tool_modification/U in T.modifications)
 		if (U.type == type)
-			user << SPAN_WARNING("An modification of this type is already installed!")
+			user << SPAN_WARNING("A modification of this type is already installed!")
 			return
 
 	return TRUE
@@ -182,5 +183,5 @@
 	holder.use_fuel_cost *= fuelcost_mult
 	holder.use_power_cost *= powercost_mult
 	holder.extra_bulk += bulk_mod
-	holder.prefixes |= prefix
+	holder.adjectives[adjective] = adjective_type
 	return TRUE

@@ -130,6 +130,11 @@
 	desc = "Director of Mining"
 	region = ACCESS_REGION_SUPPLY
 
+/var/const/access_mf = 105
+/datum/access/mf
+	id = access_mf
+	desc = "Mining Foreman"
+	region = ACCESS_REGION_SUPPLY
 
 
 
@@ -222,3 +227,10 @@
 	id = access_unitologist
 	desc = "Unmarked Vessel Access"
 	region = ACCESS_REGION_NONE
+
+
+/var/const/access_powerlock = 9999//Allows bluespacetechs to open powerlocks
+/datum/access/cent_powerlock
+	id = access_powerlock
+	desc = "Power Lock Administrative Override"
+	access_type = ACCESS_TYPE_CENTCOM

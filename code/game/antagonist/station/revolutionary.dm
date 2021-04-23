@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(revs, /datum/antagonist/revolutionary, new)
-
 /datum/antagonist/revolutionary
 	id = MODE_REVOLUTIONARY
 	role_text = "Head Revolutionary"
@@ -33,6 +31,9 @@ GLOBAL_DATUM_INIT(revs, /datum/antagonist/revolutionary, new)
 	restricted_jobs = null
 	protected_jobs = null
 
+/datum/antagonist/revolutionary/New()
+	..()
+	GLOB.revs = src
 
 /datum/antagonist/revolutionary/create_global_objectives()
 	if(!..())

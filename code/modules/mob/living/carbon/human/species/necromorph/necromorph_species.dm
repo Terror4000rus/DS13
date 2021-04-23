@@ -1,7 +1,7 @@
 /*
 	Base species for necromorphs,. the reanimated organic assemblages of the Dead Space universe
 
-	This datum should probably not be used as is, but instead make subspecies of it for each type of necromorph
+	This datum should probably not be used as is, but instead make variants of it for each type of necromorph
 */
 
 /datum/species/necromorph
@@ -14,7 +14,7 @@
 	var/marker_spawnable = TRUE	//Set this to true to allow the marker to spawn this type of necro. Be sure to unset it on the enhanced version unless desired
 	var/preference_settable = TRUE
 	biomass = 80	//This var is defined for all species
-	var/use_total_biomass = FALSE
+	var/require_total_biomass = 0	//If set, this can only be spawned when total biomass is above this value
 	var/biomass_reclamation	=	1	//The marker recovers cost*reclamation
 	var/biomass_reclamation_time	=	8 MINUTES	//How long does it take for all of the reclaimed biomass to return to the marker? This is a pseudo respawn timer
 	var/spawn_method = SPAWN_POINT	//What method of spawning from marker should be used? At a point or manual placement? check _defines/necromorph.dm
@@ -62,7 +62,12 @@
 	damage_mask 	=   null
 	blood_mask 		=   null
 
-
+	/*
+		Necromorph customisation system
+	*/
+	var/list/variants			//Species variants included. This is an assoc list in the format: species_name = list(weight, patron)
+		//If patron is true, this variant is not available by default
+	var/list/outfits		//Outfits the mob can spawn with, weighted.
 
 	//Biology
 	blood_color = COLOR_BLOOD_NECRO
@@ -157,7 +162,9 @@
 	grasping_limbs = list()
 
 	organ_substitutions = list(BP_L_HAND = BP_L_ARM,
-	BP_R_HAND = BP_R_ARM)
+	BP_R_HAND = BP_R_ARM,
+	BP_L_FOOT = BP_L_LEG,
+	BP_R_FOOT = BP_R_LEG)
 
 	//HUD Handling
 	hud_type = /datum/hud_data/necromorph
@@ -255,6 +262,7 @@
 		var/subtotal = 0
 		if (!E || E.is_stump())
 			//Its not here!
+
 			subtotal = initial_health_values[organ_tag] * dismember_mult
 			blocked += subtotal
 		else
@@ -264,6 +272,7 @@
 			//Is it a torso part?
 			if ((E.organ_tag in BP_TORSO))
 				subtotal *= torso_damage_mult
+
 
 		//And now add to total
 		total += subtotal
@@ -289,6 +298,7 @@
 	[blurb]\n\
 	\n\
 	Check the Abilities tab, use the Help ability to find out what your controls and abilities do!")
+	H.apply_customisation(H.client.prefs)
 
 
 
@@ -297,3 +307,10 @@
 		return TRUE
 	else
 		return FALSE
+
+
+
+/datum/species/necromorph/handle_post_spawn(var/mob/living/carbon/human/H)
+	.=..()
+	//Apply customisation with a null preference, this applies default settings
+	H.apply_customisation(null)

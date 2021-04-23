@@ -118,9 +118,9 @@
 
 	if (prev_held != new_held)
 		if (istype(prev_held))
-			prev_held.swapped_from(src)
+			GLOB.swapped_from_event.raise_event(prev_held, src)
 		if (istype(new_held))
-			new_held.swapped_to(src)
+			GLOB.swapped_to_event.raise_event(new_held, src)
 
 	return TRUE
 
@@ -265,10 +265,13 @@
 		update_inv_handcuffed()
 		if(buckled && buckled.buckle_require_restraints)
 			buckled.unbuckle_mob()
+	else if (W == legcuffed)
+		legcuffed = null
+		update_inv_legcuffed()
+
 	else
 	 ..()
 
-	return
 
 /mob/living/carbon/verb/mob_sleep()
 	set name = "Sleep"

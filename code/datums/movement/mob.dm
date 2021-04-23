@@ -28,7 +28,6 @@
 		return (!mover.density || !density || (lying && !density_lying()))
 	else
 		return (!mover.density || !density || (lying && !density_lying()))
-	return
 
 
 //Sets next move time to now, so a mob can move immediately
@@ -273,6 +272,8 @@
 
 /mob/proc/set_move_intent(var/decl/move_intent/M)
 	move_intent = M
+	return TRUE
+
 
 // Movement relayed to self handling
 /datum/movement_handler/mob/relayed_movement

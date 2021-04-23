@@ -20,7 +20,7 @@
 
 /obj/item/weapon/tool/saw/improvised
 	name = "choppa"
-	desc = "A wicked serrated blade made of whatever nasty sharp things you could find. It would make a pretty decent weapon"
+	desc = "A wicked serrated blade made of whatever nasty sharp things you could find. It would make a pretty decent weapon."
 	icon_state = "impro_saw"
 	force = WEAPON_FORCE_PAINFUL
 	tool_qualities = list(QUALITY_SAWING = 15, QUALITY_CUTTING = 10, QUALITY_WIRE_CUTTING = 10)
@@ -85,6 +85,7 @@
 	toggleable = TRUE
 	atom_flags = ATOM_FLAG_NO_BLOOD
 	item_flags = ITEM_FLAG_NO_EMBED
+	armor_penetration = 4
 
 /obj/item/weapon/tool/saw/plasma/update_icon()
 	if (switched_on)

@@ -23,7 +23,6 @@
 	var/heat_proof = 0 // For glass airlocks/opacity firedoors
 	var/air_properties_vary_with_direction = 0
 	max_health = 150
-	health
 
 	var/destroy_hits = 10 //How many strong hits it takes to destroy the door
 	var/min_force = 10 //minimum amount of force needed to damage the door with a melee weapon or unarmed attack
@@ -50,6 +49,7 @@
 	//A list of areas we are on or bordering
 	var/list/border_areas = list()
 
+/* //Too many balance problems, needs some reconsidering
 /obj/machinery/door/meddle()
 	if (!density)
 		close()
@@ -61,6 +61,7 @@
 
 	.=..()
 
+*/
 
 /obj/machinery/door/attack_generic(var/mob/user, var/damage, var/attack_verb, var/environment_smash)
 	if(environment_smash >= 1)
@@ -91,6 +92,7 @@
 			bound_height = width * world.icon_size
 
 	health = max_health
+	resistance = min_force	//Todo: remove min force and roll everything into resistance
 	update_connections(1)
 	update_icon()
 
@@ -391,6 +393,9 @@
 /obj/machinery/door/proc/take_damage(var/damage, var/ignore_resistance = FALSE)
 	var/initialhealth = health
 
+	if ((atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
+		return
+
 	damage = apply_resistance(damage, ignore_resistance)
 	if (!damage)
 		return
@@ -434,19 +439,20 @@
 
 
 /obj/machinery/door/ex_act(severity)
+	var/blast_divisor = 1 + (explosion_resistance * 0.1)
 	switch(severity)
 		if(1)
-			take_damage(rand_between(500, 650))
+			take_damage(rand_between(500, 650) / blast_divisor)
 		if(2)
-			take_damage(rand_between(300, 400))
+			take_damage(rand_between(300, 400) / blast_divisor)
 		if(3)
 			if(prob(80))
 				var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
 				s.set_up(2, 1, src)
 				s.start()
 			else
-				take_damage(rand_between(100, 150))
-			take_damage(rand_between(100, 150))
+				take_damage(rand_between(100, 150) / blast_divisor)
+			take_damage(rand_between(100, 150) / blast_divisor)
 
 
 /obj/machinery/door/update_icon()

@@ -10,7 +10,7 @@
 	blurb = "An expendable suicide bomber, the exploder's sole purpose is to go out in a blaze of glory, and hopefully take a few people with it."
 	unarmed_types = list(/datum/unarmed_attack/bite/weak/exploder) //Bite attack is a backup if blades are severed
 	total_health = 85	//It has high health for the sake of making it a bit harder to destroy without targeting the pustule. Exploding the pustule is always an instakill
-	biomass = 70
+	biomass = 65
 	mass = 50
 
 	biomass_reclamation_time	=	5 MINUTES
@@ -51,7 +51,9 @@
 	)
 
 	organ_substitutions = list(BP_R_LEG = BP_L_LEG,
-	BP_HEAD = BP_CHEST)
+	BP_HEAD = BP_CHEST,
+	BP_L_FOOT = BP_L_LEG,
+	BP_R_FOOT = BP_R_LEG)
 
 	//The exploder has only one fused leg, but the right arm is also used to support movement
 	locomotion_limbs = list(BP_R_ARM, BP_L_LEG)

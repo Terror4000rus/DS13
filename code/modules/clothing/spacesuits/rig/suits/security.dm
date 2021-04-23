@@ -2,9 +2,8 @@
 	name = "security rig"
 	desc = "A lightweight and flexible armoured rig suit, designed for riot control and shipboard disciplinary enforcement."
 	icon_state = "ds_security_rig"
-	armor = list(melee = 50, bullet = 55, laser = 55, energy = 25, bomb = 60, bio = 100, rad = 60)
-	offline_slowdown = 4
-	online_slowdown = 2
+	armor = list(melee = 57.5, bullet = 60, laser = 60, energy = 25, bomb = 60, bio = 100, rad = 60)
+	online_slowdown = RIG_MEDIUM
 	acid_resistance = 1.75	//Contains a fair bit of plastic
 
 	chest_type = /obj/item/clothing/suit/space/rig/security
@@ -16,8 +15,6 @@
 		/obj/item/rig_module/healthbar,
 		/obj/item/rig_module/storage,
 		/obj/item/rig_module/grenade_launcher/light,	//These grenades are harmless illumination
-		/obj/item/rig_module/device/flash,
-		/obj/item/rig_module/mounted/taser,
 		/obj/item/rig_module/device/paperdispenser,	//For warrants and paperwork
 		/obj/item/rig_module/device/pen,
 		/obj/item/rig_module/vision/nvgsec
@@ -36,8 +33,6 @@
 
 /obj/item/clothing/head/helmet/space/rig/security
 	name = "hood"
-
-
 
 
 /decl/hierarchy/supply_pack/security/rig

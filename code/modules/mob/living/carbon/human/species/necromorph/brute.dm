@@ -23,8 +23,8 @@
 	pixel_offset_x = -16
 	plane = LARGE_MOB_PLANE
 	layer = LARGE_MOB_LAYER
-
-	biomass = 350
+	require_total_biomass	=	BIOMASS_REQ_T3
+	biomass = 400
 	mass = 250
 	biomass_reclamation_time	=	15 MINUTES
 	virus_immune = 1
@@ -36,7 +36,7 @@
 	push_flags 	= ALLMOBS	// What can we push?
 	swap_flags 	= ALLMOBS	// What can we swap place with?
 	density_lying = TRUE	//Chunky boi
-	evasion = -10	//Big target, easier to shoot
+	evasion = -15	//Big target, easier to shoot
 	reach = 2
 
 	//Implacable
@@ -110,6 +110,9 @@
 	SOUND_SHOUT_LONG = list('sound/effects/creatures/necromorph/brute/brute_shout_long.ogg')
 	)
 
+	variants = list(SPECIES_NECROMORPH_BRUTE = list(WEIGHT = 1),
+	SPECIES_NECROMORPH_BRUTE_FLESH = list(WEIGHT = 1))
+
 
 #define BRUTE_PASSIVE_1	"<h2>PASSIVE: Tunnel Vision:</h2><br>\
 The brute has extremely restricted vision, able only to see a few tiles infront of it, and none behind it. This makes it very vulnerable to flanking attacks. Keep the enemy infront of you!"
@@ -173,6 +176,7 @@ Brute will be forced into a reflexive curl under certain circumstances, but it c
 	icon_normal = "brute-f"
 	icon_lying = "brute-f-dead"//Temporary icon so its not invisible lying down
 	icon_dead = "brute-f-dead"
+	mob_type = /mob/living/carbon/human/necromorph/bruteflesh
 
 	marker_spawnable = FALSE
 	preference_settable = FALSE
@@ -253,9 +257,14 @@ Brute will be forced into a reflexive curl under certain circumstances, but it c
 /datum/species/necromorph/brute/handle_organ_external_damage(var/obj/item/organ/external/organ, brute, burn, damage_flags, used_weapon)
 	//First of all, we need to figure out where the attack is coming from
 	var/atom/source
+	var/penetration = 0
 	if (isatom(used_weapon))	//Its possible used weapon might be a string, useless to us
 
 		source = get_turf(used_weapon)
+
+		if (isitem(used_weapon))
+			var/obj/item/I = used_weapon
+			penetration = I.armor_penetration
 
 
 	if (!source)
@@ -293,6 +302,9 @@ Brute will be forced into a reflexive curl under certain circumstances, but it c
 
 		if (curled)
 			reduction *= curl_armor_mult
+
+	//Armor penetration on attacks goes through the armor
+	reduction -= penetration
 
 	if (!reduction)
 		//The target must be behind us or hit a gap, the attack will go through unhindered

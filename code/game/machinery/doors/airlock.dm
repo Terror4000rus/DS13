@@ -375,7 +375,7 @@ var/list/airlock_overlays = list()
 	stripe_fill_file = 'icons/obj/doors/station/color.dmi'
 	deny_file = 'icons/obj/doors/station/lights_deny.dmi'
 	lights_file = 'icons/obj/doors/station/lights_green.dmi'
-	explosion_resistance = 20
+	explosion_resistance = 30
 	opacity = 1
 	secured_wires = 1
 	assembly_type = /obj/structure/door_assembly/door_assembly_highsecurity //Until somebody makes better sprites.
@@ -1079,7 +1079,11 @@ About the new airlock wires panel:
 			return
 
 		if(!repairing && isWelder(C) && !( src.operating > 0 ) && src.density)
-			user.visible_message("You start [welded?"unwelding":"welding"] the [src]")
+
+			user.visible_message(
+				"<span class='notice'>\The [user] starts to [welded?"unwelding":"welding"] the [src].</span>",
+				"<span class='notice'>You start [welded?"unwelding":"welding"] the [src].</span>"
+				)
 			if(C.use_tool(user, src, WORKTIME_VERY_SLOW, QUALITY_WELDING, FAILCHANCE_NORMAL))
 				if(!src.welded)
 					src.welded = 1
@@ -1089,6 +1093,10 @@ About the new airlock wires panel:
 				src.update_icon()
 			return
 		else if(isScrewdriver(C) && C.use_tool(user, src, WORKTIME_FAST, QUALITY_SCREW_DRIVING, FAILCHANCE_NORMAL))
+			if ((atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
+				p_open = 0
+				return
+
 			if (src.p_open)
 				if (stat & BROKEN)
 					to_chat(usr, "<span class='warning'>The panel is broken and cannot be closed.</span>")
@@ -1101,6 +1109,8 @@ About the new airlock wires panel:
 		else if(isWirecutter(C))
 			return src.attack_hand(user)
 		else if(isMultitool(C))
+			if ((atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
+				return
 			return src.attack_hand(user)
 		else if(istype(C, /obj/item/device/assembly/signaler))
 			return src.attack_hand(user)

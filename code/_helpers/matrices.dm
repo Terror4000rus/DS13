@@ -3,18 +3,7 @@
 	Turn(.) //BYOND handles cases such as -270, 360, 540 etc. DOES NOT HANDLE 180 TURNS WELL, THEY TWEEN AND LOOK LIKE SHIT
 
 
-/atom/proc/SpinAnimation(speed = 10, loops = -1)
-	var/matrix/m120 = matrix(transform)
-	m120.Turn(120)
-	var/matrix/m240 = matrix(transform)
-	m240.Turn(240)
-	var/matrix/m360 = matrix(transform)
-	speed /= 3      //Gives us 3 equal time segments for our three turns.
-	                //Why not one turn? Because byond will see that the start and finish are the same place and do nothing
-	                //Why not two turns? Because byond will do a flip instead of a turn
-	animate(src, transform = m120, time = speed, loops,flags = ANIMATION_PARALLEL)
-	animate(transform = m240, time = speed)
-	animate(transform = m360, time = speed)
+
 
 /atom/proc/shake_animation(var/intensity = 8)
 	var/initial_transform = new/matrix(transform)
@@ -50,7 +39,7 @@
 //Duration is in deciseconds
 //Strength is an offset in tiles
 //Non integer values are perfectly fine for both inputs
-/proc/shake_camera(mob/M, duration= 4, strength=1)
+/proc/shake_camera(mob/M, duration= 4, strength=1, var/flags = ANIMATION_PARALLEL)
 	if(!istype(M) || !M.client || M.stat || isEye(M) || isAI(M))
 		return
 

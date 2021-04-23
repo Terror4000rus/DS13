@@ -11,13 +11,13 @@
 	icon_state = "head"
 	icon_living = "head"
 	icon_dead = list("head_dead_1", "head_dead_2")
-	melee_damage_lower = 4
-	melee_damage_upper = 6
+	melee_damage_lower = 3
+	melee_damage_upper = 5
 	attacktext = "whipped"
 	attack_sound = 'sound/weapons/bite.ogg'
 	speed = 1.75
 	leap_range = 4
-	max_health = 50
+	max_health = 60
 
 	pain_sounds = list('sound/effects/creatures/necromorph/divider/component/head_pain_1.ogg',
 	'sound/effects/creatures/necromorph/divider/component/head_pain_2.ogg')
@@ -332,7 +332,7 @@
 
 
 
-	vision_mod = -4
+	statmods = list(STATMOD_EVASION = -100, STATMOD_VIEW_RANGE = -4)
 
 
 /datum/extension/execution/divider_head/safety_check()
@@ -360,10 +360,13 @@
 	if (LAZYLEN(head.attack_sounds))
 		playsound(host.victim, pick(head.attack_sounds), VOLUME_MAX, TRUE)
 
+	.=..()
+
 /datum/execution_stage/divider_possess_start
 	duration = 5 SECONDS
 
 /datum/execution_stage/divider_possess/enter()
+	.=..()
 	playsound(host.user, 'sound/effects/creatures/necromorph/divider/divider_posession.ogg', VOLUME_LOUD, TRUE)
 	host.user.visible_message(SPAN_EXECUTION("[host.user] slips their tentacles down the gaping neck hole on [host.victim]'s twitching, headless corpse."))
 

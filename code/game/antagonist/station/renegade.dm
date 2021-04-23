@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(renegades, /datum/antagonist/renegade, new)
-
 /datum/antagonist/renegade
 	role_text = "Renegade"
 	role_text_plural = "Renegades"
@@ -46,6 +44,10 @@ GLOBAL_DATUM_INIT(renegades, /datum/antagonist/renegade, new)
 		/obj/item/weapon/gun/projectile/magnum_pistol,
 		list(/obj/item/weapon/gun/projectile/revolver/detective, /obj/item/weapon/gun/projectile/revolver/deckard)
 		)
+
+/datum/antagonist/renegade/New()
+	..()
+	GLOB.renegades = src
 
 /datum/antagonist/renegade/create_objectives(var/datum/mind/player)
 

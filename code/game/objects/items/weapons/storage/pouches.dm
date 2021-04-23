@@ -24,20 +24,24 @@
 	to_chat(usr, SPAN_NOTICE("Items will now [sliding_behavior ? "" : "not"] slide out of [src]"))
 
 /obj/item/weapon/storage/pouch/attack_hand(mob/living/carbon/human/user)
-	if(sliding_behavior && contents.len && (src in user))
-		var/obj/item/I = contents[contents.len]
-		if(istype(I))
-			hide_from(usr)
-			var/turf/T = get_turf(user)
-			remove_from_storage(I, T)
-			usr.put_in_hands(I)
-			add_fingerprint(user)
-	else
-		..()
+	if(src in user)
+		if(!sliding_behavior)
+			src.open(user)
+			return
+		else if(contents.len)
+			var/obj/item/I = contents[contents.len]
+			if(istype(I))
+				hide_from(usr)
+				var/turf/T = get_turf(user)
+				remove_from_storage(I, T)
+				usr.put_in_hands(I)
+				add_fingerprint(user)
+				return
+	..()
 
 /obj/item/weapon/storage/pouch/small_generic
 	name = "small generic pouch"
-	desc = "A small pouch which expands a pocket slot, allowing it to hold a couple of little things"
+	desc = "A small pouch which expands a pocket slot, allowing it to hold a couple of little things."
 	icon_state = "small_generic"
 	item_state = "small_generic"
 	storage_slots = null //Uses generic capacity
@@ -46,7 +50,7 @@
 
 /obj/item/weapon/storage/pouch/medium_generic
 	name = "medium generic pouch"
-	desc = "A small pouch which expands a pocket slot, allowing it to hold several little things"
+	desc = "A small pouch which expands a pocket slot, allowing it to hold several little things."
 	icon_state = "medium_generic"
 	item_state = "medium_generic"
 	storage_slots = null //Uses generic capacity
@@ -54,7 +58,7 @@
 
 /obj/item/weapon/storage/pouch/large_generic
 	name = "large generic pouch"
-	desc = "A mini satchel. Can hold a fair bit, worn around the waist"
+	desc = "A mini satchel. Can hold a fair bit, worn around the waist."
 	icon_state = "large_generic"
 	item_state = "large_generic"
 	w_class = ITEM_SIZE_NORMAL
@@ -157,7 +161,7 @@
 //Basically for holding forcegun and contact beam ammo
 /obj/item/weapon/storage/pouch/cell
 	name = "energy cell pouch"
-	desc = "Can hold two bulky power cells, whether for devices or the bulky ammunition cells for heavy weapons"
+	desc = "Can hold two bulky power cells, whether for devices or the bulky ammunition cells for heavy weapons."
 	icon_state = "energy"
 	item_state = "energy"
 

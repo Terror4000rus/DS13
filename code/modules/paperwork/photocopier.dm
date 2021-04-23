@@ -1,5 +1,6 @@
 /obj/machinery/photocopier
 	name = "photocopier"
+	desc = "This machine scans and copies papers. Usually."
 	icon = 'icons/obj/library.dmi'
 	icon_state = "bigscanner"
 	var/insert_anim = "bigscanner1"
@@ -15,6 +16,7 @@
 	var/copies = 1	//how many copies to print!
 	var/toner = 30 //how much toner is left! woooooo~
 	var/maxcopies = 10	//how many copies can be copied at once- idea shamelessly stolen from bs12's copier!
+	clicksound = "button2"
 
 /obj/machinery/photocopier/attack_ai(mob/user as mob)
 	return attack_hand(user)
@@ -52,12 +54,15 @@
 
 			if (istype(copyitem, /obj/item/weapon/paper))
 				copy(copyitem)
+				playsound(src, 'sound/machines/tankbiorecycle.ogg', VOLUME_LOW)
 				sleep(15)
 			else if (istype(copyitem, /obj/item/weapon/photo))
 				photocopy(copyitem)
+				playsound(src, 'sound/machines/tankbiorecycle.ogg', VOLUME_LOW)
 				sleep(15)
 			else if (istype(copyitem, /obj/item/weapon/paper_bundle))
 				var/obj/item/weapon/paper_bundle/B = bundlecopy(copyitem)
+				playsound(src, 'sound/machines/tankbiorecycle.ogg', VOLUME_LOW)
 				sleep(15*B.pages.len)
 			else
 				to_chat(usr, "<span class='warning'>\The [copyitem] can't be copied by \the [src].</span>")
@@ -230,5 +235,6 @@
 
 /obj/item/device/toner
 	name = "toner cartridge"
+	desc = "A component consumed by printing devices."
 	icon_state = "tonercartridge"
 	var/toner_amount = 30

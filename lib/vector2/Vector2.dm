@@ -10,8 +10,8 @@
 		return "(wrongtype)"
 
 vector2
-	var x
-	var y
+	var/x
+	var/y
 
 	/* Takes 2 numbers or a vector2 to copy.
 	*/
@@ -20,7 +20,7 @@ vector2
 		if(isnum(x)) if(!isnum(y)) y = x
 
 		else if(istype(x, /vector2))
-			var vector2/v = x
+			var/vector2/v = x
 			x = v.x
 			y = v.y
 
@@ -50,12 +50,12 @@ vector2
 
 			// Transform
 			else if(istype(s, /matrix))
-				var matrix/m = s
+				var/matrix/m = s
 				return get_new_vector(x * m.a + y * m.b + m.c, x * m.d + y * m.e + m.f)
 
 			// Component-wise
 			else if(istype(s, /vector2))
-				var vector2/v = s
+				var/vector2/v = s
 				return get_new_vector(x * v.x, y * v.y)
 
 			else CRASH("Invalid args.")
@@ -71,7 +71,7 @@ vector2
 
 			// Component-wise
 			else if(istype(d, /vector2))
-				var vector2/v = d
+				var/vector2/v = d
 				return get_new_vector(x / v.x, y / v.y)
 
 			else CRASH("Invalid args.")
@@ -80,6 +80,15 @@ vector2
 
 		Copy()
 			return get_new_vector(x, y)
+
+		/*
+			Copies the values of src into v, without modifying src.
+			v is modified, be sure that you own it first
+			Does not return anything
+		*/
+		CopyTo(vector2/v)
+			v.x = src.x
+			v.y = src.y
 
 
 		/* Vector dot product.
@@ -123,6 +132,7 @@ vector2
 			//If we're within range, do this anyway to return a copy of ourselves
 			.=src.ToMagnitude(current_magnitude)
 
+
 		/* Get a vector in the same direction but with magnitude 1.
 		*/
 		Normalized() return ToMagnitude(1)
@@ -158,7 +168,7 @@ vector2
 			Also accepts a dir.
 		*/
 		RotationFrom(vector2/from_vector = Vector2.North)
-			var vector2/to_vector = Normalized()
+			var/vector2/to_vector = Normalized()
 
 			var/from_created = FALSE
 			if(isnum(from_vector))
@@ -167,9 +177,8 @@ vector2
 
 			if(istype(from_vector, /vector2))
 				from_vector.SelfNormalize()
-				var
-					cos_angle = to_vector.Dot(from_vector)
-					sin_angle = to_vector.Cross(from_vector)
+				var/cos_angle = to_vector.Dot(from_vector)
+				var/sin_angle = to_vector.Cross(from_vector)
 				.= matrix(cos_angle, sin_angle, 0, -sin_angle, cos_angle, 0)
 				release_vector(to_vector)
 
@@ -215,7 +224,7 @@ vector2
 			Also accepts a dir.
 		*/
 		AngleFrom(vector2/from_vector = Vector2.North, var/shorten = FALSE)
-			var vector2/to_vector = Normalized()
+			var/vector2/to_vector = Normalized()
 
 			if(isnum(from_vector))
 				from_vector = Vector2.FromDir(from_vector) //This is not copied, gotta be careful with it
@@ -301,6 +310,19 @@ vector2
 			else if (current_magnitude > maximum)
 				SelfToMagnitude(maximum)
 
+
+		/*
+			Clamps our magnitude to a maximum distance from the reference
+			Destructive to self
+		*/
+		SelfClampMagFrom(var/atom/reference, var/minimum, var/maximum)
+			var/vector2/ref_loc = reference.get_global_pixel_loc()
+			SelfSubtract(ref_loc)	//Self is now an offset from ref loc
+			SelfClampMag(minimum, maximum)	//Now clamped
+			SelfAdd(ref_loc)	//And we are now a world loc
+			release_vector(ref_loc)
+
+
 		SelfZero()
 			x = 0
 			y = 0
@@ -327,6 +349,6 @@ vector2
 			/*
 			// Transform
 			else if(istype(s, /matrix))
-				var matrix/m = s
+				var/matrix/m = s
 				return get_new_vector(x * m.a + y * m.b + m.c, x * m.d + y * m.e + m.f)
 			*/

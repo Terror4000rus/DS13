@@ -12,8 +12,6 @@
 
 #define CULT_MAX_CULTINESS 1200 // When this value is reached, the game stops checking for updates so we don't recheck every time a tile is converted in endgame
 
-GLOBAL_DATUM_INIT(cult, /datum/antagonist/cultist, new)
-
 /proc/iscultist(var/mob/player)
 	if(!GLOB.cult || !player.mind)
 		return 0
@@ -54,6 +52,10 @@ GLOBAL_DATUM_INIT(cult, /datum/antagonist/cultist, new)
 	var/conversion_blurb = "You catch a glimpse of the Realm of Nar-Sie, the Geometer of Blood. You now see how flimsy the world is, you see that it should be open to the knowledge of That Which Waits. Assist your new compatriots in their dark dealings. Their goals are yours, and yours are theirs. You serve the Dark One above all else. Bring It back."
 
 	faction = "cult"
+
+/datum/antagonist/cultist/New()
+	..()
+	GLOB.cult = src
 
 /datum/antagonist/cultist/create_global_objectives()
 

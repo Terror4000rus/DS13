@@ -60,6 +60,11 @@ var/list/outfits_decls_by_type_
 	var/list/all_types = list()
 	var/list/all_possible_types = list()
 	var/list/implants
+	var/list/species_icons	//Generated on demand at runtime, this list contains icons representing species wearing this outfit
+
+/decl/hierarchy/outfit/naked
+	//This is just here because of how hierarchies work
+
 
 /decl/hierarchy/outfit/New(var/full_init = TRUE, var/list_entry = FALSE)
 	..()
@@ -140,71 +145,70 @@ var/list/outfits_decls_by_type_
 
 	if(!(OUTFIT_ADJUSTMENT_SKIP_POST_EQUIP & equip_adjustments))
 		post_equip(H)
-	H.regenerate_icons()
+	H.regenerate_icons(TRUE)	//Passing true ensures the icons are made instantly
 	if(W) // We set ID info last to ensure the ID photo is as correct as possible.
 		H.set_id_info(W)
 	return TRUE
 
-/decl/hierarchy/outfit/proc/equip_base(mob/living/carbon/human/H, var/equip_adjustments, var/overwrite = FALSE)
+/decl/hierarchy/outfit/proc/equip_base(mob/living/carbon/human/H, var/equip_adjustments, var/overwrite = FALSE, var/dummy = FALSE)
 	pre_equip(H)
-
 	//Start with uniform,suit,backpack for additional slots
 	if(uniform)
 		if (overwrite && H.w_uniform)
 			QDEL_NULL(H.w_uniform)
-		H.equip_to_slot_or_del(create_item(uniform, H),slot_w_uniform)
+		H.equip_to_slot_or_del(create_item(uniform, H, dummy),slot_w_uniform)
 	if(suit)
 		if (overwrite && H.wear_suit)
 			QDEL_NULL(H.wear_suit)
-		H.equip_to_slot_or_del(create_item(suit, H),slot_wear_suit)
+		H.equip_to_slot_or_del(create_item(suit, H, dummy),slot_wear_suit)
 	if(back)
 		if (overwrite && H.back)
 			QDEL_NULL(H.back)
-		H.equip_to_slot_or_del(create_item(back, H),slot_back)
+		H.equip_to_slot_or_del(create_item(back, H, dummy),slot_back)
 	if(belt)
 		if (overwrite && H.belt)
 			QDEL_NULL(H.belt)
-		H.equip_to_slot_or_del(create_item(belt, H),slot_belt)
+		H.equip_to_slot_or_del(create_item(belt, H, dummy),slot_belt)
 	if(gloves)
 		if (overwrite && H.gloves)
 			QDEL_NULL(H.gloves)
-		H.equip_to_slot_or_del(create_item(gloves, H),slot_gloves)
+		H.equip_to_slot_or_del(create_item(gloves, H, dummy),slot_gloves)
 	if(shoes)
 		if (overwrite && H.shoes)
 			QDEL_NULL(H.shoes)
-		H.equip_to_slot_or_del(create_item(shoes, H),slot_shoes)
+		H.equip_to_slot_or_del(create_item(shoes, H, dummy),slot_shoes)
 	if(head)
 		if (overwrite && H.head)
 			QDEL_NULL(H.head)
-		H.equip_to_slot_or_del(create_item(head, H),slot_head)
+		H.equip_to_slot_or_del(create_item(head, H, dummy),slot_head)
 	if(mask)
 		if (overwrite && H.wear_mask)
 			QDEL_NULL(H.wear_mask)
-		H.equip_to_slot_or_del(create_item(mask, H),slot_wear_mask)
+		H.equip_to_slot_or_del(create_item(mask, H, dummy),slot_wear_mask)
 	if(l_ear)
 		if (overwrite && H.l_ear)
 			QDEL_NULL(H.l_ear)
-		H.equip_to_slot_or_del(create_item(l_ear, H),slot_l_ear)
+		H.equip_to_slot_or_del(create_item(l_ear, H, dummy),slot_l_ear)
 	if(r_ear)
 		if (overwrite && H.r_ear)
 			QDEL_NULL(H.r_ear)
-		H.equip_to_slot_or_del(create_item(r_ear, H),slot_r_ear)
+		H.equip_to_slot_or_del(create_item(r_ear, H, dummy),slot_r_ear)
 	if(glasses)
 		if (overwrite && H.glasses)
 			QDEL_NULL(H.glasses)
-		H.equip_to_slot_or_del(create_item(glasses, H),slot_glasses)
+		H.equip_to_slot_or_del(create_item(glasses, H, dummy),slot_glasses)
 	if(id)
 		if (overwrite && H.wear_id)
 			QDEL_NULL(H.wear_id)
-		H.equip_to_slot_or_del(create_item(id, H),slot_wear_id)
+		H.equip_to_slot_or_del(create_item(id, H, dummy),slot_wear_id)
 	if(suit_store)
 		if (overwrite && H.s_store)
 			QDEL_NULL(H.s_store)
-		H.equip_to_slot_or_del(create_item(suit_store, H),slot_s_store)
+		H.equip_to_slot_or_del(create_item(suit_store, H, dummy),slot_s_store)
 	if(l_hand)
-		H.put_in_l_hand(create_item(l_hand, H))
+		H.put_in_l_hand(create_item(l_hand, H, dummy))
 	if(r_hand)
-		H.put_in_r_hand(create_item(r_hand, H))
+		H.put_in_r_hand(create_item(r_hand, H, dummy))
 
 	if((flags & OUTFIT_HAS_BACKPACK) && !(OUTFIT_ADJUSTMENT_SKIP_BACKPACK & equip_adjustments))
 		var/decl/backpack_outfit/bo
@@ -229,12 +233,12 @@ var/list/outfits_decls_by_type_
 
 	check_and_try_equip_xeno(H)
 
-/decl/hierarchy/outfit/proc/equip_id(var/mob/living/carbon/human/H, var/rank, var/assignment, var/equip_adjustments)
+/decl/hierarchy/outfit/proc/equip_id(var/mob/living/carbon/human/H, var/rank, var/assignment, var/equip_adjustments, var/dummy)
 	if(!id_slot || !id_type)
 		return
 	if(OUTFIT_ADJUSTMENT_SKIP_ID_PDA & equip_adjustments)
 		return
-	var/obj/item/weapon/card/id/W = create_item(id_type, H)
+	var/obj/item/weapon/card/id/W = create_item(id_type, H, dummy = dummy)
 	if(id_desc)
 		W.desc = id_desc
 	if(rank)
@@ -245,12 +249,12 @@ var/list/outfits_decls_by_type_
 	if(H.equip_to_slot_or_store_or_drop(W, id_slot))
 		return W
 
-/decl/hierarchy/outfit/proc/equip_pda(var/mob/living/carbon/human/H, var/rank, var/assignment, var/equip_adjustments)
+/decl/hierarchy/outfit/proc/equip_pda(var/mob/living/carbon/human/H, var/rank, var/assignment, var/equip_adjustments, var/dummy)
 	if(!pda_slot || !pda_type)
 		return
 	if(OUTFIT_ADJUSTMENT_SKIP_ID_PDA & equip_adjustments)
 		return
-	var/obj/item/modular_computer/pda/pda = create_item(pda_type, H)
+	var/obj/item/modular_computer/pda/pda = create_item(pda_type, H, dummy)
 	if(H.equip_to_slot_or_store_or_drop(pda, pda_slot))
 		return pda
 
@@ -272,8 +276,13 @@ var/list/outfits_decls_by_type_
 
 
 //Wrapper for creating, so that we can manipulate the items
-/decl/hierarchy/outfit/proc/create_item(var/path, var/location)
-	return new path(location)
+/decl/hierarchy/outfit/proc/create_item(var/path, var/location, var/dummy = FALSE)
+	var/datum/thing = path
+
+	if (dummy && initial(thing.implements_dummy))
+		return new path(location, dummy = TRUE)
+	else
+		return new path(location)
 
 
 /decl/hierarchy/outfit/proc/copy()
@@ -327,6 +336,20 @@ var/list/outfits_decls_by_type_
 	for (var/typepath in get_all_item_paths())
 		loadout_tags |= get_loadout_tags_from_type(typepath)
 
+
+/*
+	This creates and caches an icon, then returns it
+	The icon represents a typical member of the passed species, wearing this outfit
+*/
+/decl/hierarchy/outfit/proc/get_default_species_icon(var/species_name = SPECIES_HUMAN)
+	if (!LAZYACCESS(species_icons, species_name))
+		var/mob/living/carbon/human/H = new /mob/living/carbon/human(null, species_name)
+		equip(H, equip_adjustments = OUTFIT_ADJUSTMENT_SKIP_SURVIVAL_GEAR)
+		//H.regenerate_icons()
+		LAZYSET(species_icons,	species_name,	getFlatIcon(H))
+	return LAZYACCESS(species_icons, species_name)
+
+
 /*
 	INSTANCE ONLY PROCS
 	These modify ourself in destructive ways, they should only be called from an instanced copy of an outfit, not on the version stored in global lists
@@ -348,3 +371,6 @@ var/list/outfits_decls_by_type_
 			//If so, we remove it from this outfit
 			var/outfit_slot = outfit_item[2]
 			vars[outfit_slot] = null
+
+
+

@@ -22,6 +22,8 @@
 	//This default value is fine for humans and anything roughly the same width as a human, larger creatures will require different numbers
 	//The value required depends not only on overall icon size, but also on the empty space on -both- sides of the sprite. Trial and error is the best way to find the right number
 
+	var/icon/default_icon	//Constructed at runtime, this stores an icon which represents a typical member of this species with all values at default. This is mainly for use in UIs and reference
+
 	//This icon_lying var pulls several duties
 	//First, if its non-null, it indicates this species has some kind of special behaviour when lying down. This will trigger extra updates and things
 	//Secondly, it is the string suffix added to organ iconstates
@@ -104,6 +106,7 @@
 	// Health and Defense
 	var/total_health = 120                   // Point at which the mob will enter crit.
 	var/healing_factor	=	0.07				//Base damage healed per organ, per tick
+	var/burn_heal_factor = 1				//When healing burns passively, the heal amount is multiplied by this
 	var/max_heal_threshold	=	0.6			//Wounds can only autoheal if the damage is less than this * max_damage
 	var/wound_remnant_time = 10 MINUTES	//How long fully-healed wounds stay visible before vanishing
 	var/limb_health_factor	=	1	//Multiplier on max health of limbs
@@ -196,6 +199,8 @@
 	var/slowdown = 0              // Passive movement speed malus (or boost, if negative)
 	var/slow_turning = FALSE		//If true, mob goes on move+click cooldown when rotating in place, and can't turn+move in the same step
 	var/list/locomotion_limbs = list(BP_L_LEG, BP_R_LEG, BP_L_FOOT, BP_R_FOOT)	//What limbs does this species use to move? It goes slower when these are missing/broken/splinted
+	var/lying_speed_factor = 0.25	//Our speed is multiplied by this when crawling
+
 
 	//Interaction
 	var/limited_click_arc = 0	  //If nonzero, the mob is limited to clicking on things in X degrees arc infront of it. Best combined with slow turning. Recommended values, 45 or 90
@@ -232,6 +237,8 @@
 	var/obj/effect/decal/cleanable/blood/tracks/move_trail = /obj/effect/decal/cleanable/blood/tracks/footprints // What marks are left when walking
 
 	var/list/skin_overlays = list()
+
+
 
 
 
@@ -1017,7 +1024,6 @@ These procs should return their entire args list. Best just to return parent in 
 
 //Does animations for regenerating a limb
 /datum/species/proc/regenerate_limb(var/mob/living/carbon/human/H, var/limb, var/duration)
-	world << "regenerate limb [duration]"
 	var/regen_icon = get_icobase()
 	var/image/LR = image(regen_icon, H, "[limb]_regen")
 	LR.plane = H.plane

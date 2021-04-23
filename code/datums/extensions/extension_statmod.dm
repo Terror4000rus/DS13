@@ -185,8 +185,25 @@ STATMOD_VIEW_RANGE = list(/datum/proc/update_vision_range)
 */
 /datum/proc/update_vision_range()
 
+/datum/proc/get_base_view_range()
+	return world.view
+
+/mob/living/get_base_view_range()
+	if (eyeobj)
+		return eyeobj.get_base_view_range()
+	return initial(view_range)
+
+/mob/observer/eye/get_base_view_range()
+	return initial(view_range)
+
+/mob/living/carbon/human/get_base_view_range()
+	if (eyeobj)
+		return eyeobj.get_base_view_range()
+	return species.view_range
+
+
 /mob/update_vision_range()
-	var/range = world.view
+	var/range = get_base_view_range()
 
 	//We multiply by the result of each multiplicative modifier
 	for (var/datum/extension/E as anything in LAZYACCESS(statmods, STATMOD_VIEW_RANGE))
@@ -198,3 +215,6 @@ STATMOD_VIEW_RANGE = list(/datum/proc/update_vision_range)
 	view_range = range
 	if (client)
 		client.set_view_range(view_range, TRUE)
+
+
+

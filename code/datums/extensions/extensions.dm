@@ -40,26 +40,26 @@
 //Variadic - Additional positional arguments can be given. Named arguments might not work so well
 /proc/set_extension(var/datum/source, var/datum/extension/extension_type)
 	var/datum/extension/extension_base_type = initial(extension_type.base_type)
+	if (QDELETED(source))
+		return
 	if (!extension_base_type)
 		extension_base_type = extension_type
 	if(!ispath(extension_base_type, /datum/extension))
 		CRASH("Invalid base type: Expected /datum/extension, was [log_info_line(extension_base_type)]")
 	if(!ispath(extension_type, extension_base_type))
 		CRASH("Invalid extension type: Expected [extension_base_type], was [log_info_line(extension_type)]")
-	if(!source.extensions)
-		source.extensions = list()
-	var/datum/extension/existing_extension = source.extensions[extension_base_type]
+	var/datum/extension/existing_extension = LAZYACCESS(source.extensions, extension_base_type)
 	if(istype(existing_extension) && !(existing_extension.flags & EXTENSION_FLAG_MULTIPLE_INSTANCES))
 		qdel(existing_extension)
 
 	if(initial(extension_base_type.flags) & EXTENSION_FLAG_IMMEDIATE)
 		. = construct_extension_instance(extension_type, source, args.Copy(3))
-		source.extensions[extension_base_type] = .
+		LAZYSET(source.extensions, extension_base_type, .)
 	else
 		var/list/extension_data = list(extension_type, source)
 		if(args.len > 2)
 			extension_data += args.Copy(3)
-		source.extensions[extension_base_type] = extension_data
+		LAZYSET(source.extensions, extension_base_type, extension_data)
 
 /proc/get_or_create_extension(var/datum/source, var/datum/extension/extension_type)
 	var/datum/extension/base_type = initial(extension_type.base_type)
@@ -79,6 +79,21 @@
 		var/list/extension_data = .
 		. = construct_extension_instance(extension_data[1], extension_data[2], extension_data.Copy(3))
 		source.extensions[base_type] = .
+
+/*
+	Gets the first matching extension using istype
+*/
+/proc/get_extension_of_type(var/datum/source, var/search_type)
+	if(!source.extensions)
+		return
+	for (var/typepath in source.extensions)
+		var/datum/extension/E = source.extensions[typepath]
+		if (istype(E, search_type))
+			.=E
+			break
+	if(!. || !istype(., /datum/extension))
+		return null
+
 
 //Fast way to check if it has an extension, also doesn't trigger instantiation of lazy loaded extensions
 /proc/has_extension(var/datum/source, var/base_type)

@@ -87,8 +87,8 @@
 	var/seal_delay = SEAL_DELAY
 	var/sealing                                               // Keeps track of seal status independantly of canremove.
 	var/offline = 1                                           // Should we be applying suit maluses?
-	var/online_slowdown = 0                                   // If the suit is deployed and powered, it sets slowdown to this.
-	var/offline_slowdown = 3                                  // If the suit is deployed and unpowered, it sets slowdown to this.
+	var/online_slowdown = RIG_MEDIUM                                  // If the suit is deployed and powered, it sets slowdown to this.
+	var/offline_slowdown = 4                                  // If the suit is deployed and unpowered, it sets slowdown to this.
 	var/vision_restriction = TINT_NONE
 	var/offline_vision_restriction = TINT_HEAVY               // tint value given to helmet
 	var/airtight = 1 //If set, will adjust ITEM_FLAG_AIRTIGHT and ITEM_FLAG_STOPPRESSUREDAMAGE flags on components. Otherwise it should leave them untouched.
@@ -115,6 +115,10 @@
 		if(open)
 			to_chat(usr, "It's equipped with [english_list(installed_modules)].")
 
+/obj/item/weapon/rig/New(var/location, var/dummy)
+	src.dummy = dummy
+	.=..()
+
 /obj/item/weapon/rig/Initialize()
 	. = ..()
 
@@ -127,14 +131,13 @@
 	spark_system = new()
 	spark_system.set_up(5, 0, src)
 	spark_system.attach(src)
-
-	START_PROCESSING(SSobj, src)
+	if (!dummy)
+		START_PROCESSING(SSobj, src)
 
 	if(initial_modules && initial_modules.len)
 		for(var/path in initial_modules)
 			var/obj/item/rig_module/module = new path(src)
-			installed_modules += module
-			module.installed(src)
+			install(module)
 
 	// Create and initialize our various segments.
 	if(cell_type)
@@ -148,7 +151,7 @@
 	if(helm_type)
 		helmet = new helm_type(src)
 		helmet.rig = src
-		verbs |= /obj/item/weapon/rig/proc/toggle_helmet
+		verbs |= /obj/item/weapon/rig/proc/toggle_helmet_verb
 	if(boot_type)
 		boots = new boot_type(src)
 		boots.rig = src
@@ -190,7 +193,6 @@
 			if (C.rig == src)
 				C.rig = null
 		qdel(piece)
-	STOP_PROCESSING(SSobj, src)
 	qdel(wires)
 	wires = null
 	qdel(spark_system)
@@ -666,12 +668,13 @@
 
 /obj/item/weapon/rig/equipped(mob/living/carbon/human/M, var/slot)
 	.=..()
-
 	if (!istype(M))
 		return FALSE
 
 	if (equip_slot == desired_slot)
 
+		//This code is completely out of place and causes a myriad of problems, it is not worth the effort to solve it
+		/*
 		if(seal_delay > 0)
 			M.visible_message("<font color='blue'>[M] starts putting on \the [src]...</font>", "<font color='blue'>You start putting on \the [src]...</font>")
 			if(!do_after(M,seal_delay,src))
@@ -680,6 +683,7 @@
 						return FALSE
 				src.forceMove(get_turf(src))
 				return FALSE
+		*/
 
 		if(istype(M) && equip_slot == desired_slot)
 			M.visible_message("<font color='blue'><b>[M] struggles into \the [src].</b></font>", "<font color='blue'><b>You struggle into \the [src].</b></font>")

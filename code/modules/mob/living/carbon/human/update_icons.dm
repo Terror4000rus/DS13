@@ -134,17 +134,19 @@ Please contact me on #coderbus IRC. ~Carn x
 #define FACEMASK_LAYER			20
 #define HEAD_LAYER				21
 #define COLLAR_LAYER			22
-#define HANDCUFF_LAYER			23
-#define L_HAND_LAYER			24
-#define R_HAND_LAYER			25
-#define FIRE_LAYER				26		//If you're on fire
-#define TARGETED_LAYER			27		//BS12: Layer for the target overlay from weapon targeting system
-#define TOTAL_LAYERS			27
+#define LEGCUFF_LAYER			23
+#define HANDCUFF_LAYER			24
+#define L_HAND_LAYER			25
+#define R_HAND_LAYER			26
+#define FIRE_LAYER				27		//If you're on fire
+#define TARGETED_LAYER			28		//BS12: Layer for the target overlay from weapon targeting system
+#define TOTAL_LAYERS			29
 //////////////////////////////////
 
 /mob/living/carbon/human
 	var/list/overlays_standing[TOTAL_LAYERS]
 	var/previous_damage_appearance // store what the body last looked like, so we only have to update it if something changed
+	var/icon_updates = 0
 
 //UPDATES OVERLAYS FROM OVERLAYS_LYING/OVERLAYS_STANDING
 /mob/living/carbon/human/update_icons()
@@ -184,7 +186,6 @@ Please contact me on #coderbus IRC. ~Carn x
 		if(istype(head) && !head.is_stump())
 			var/image/I = head.get_eye_overlay()
 			if(I) overlays_to_apply += I
-
 	lying_prev = lying	//so we don't update overlays for lying/standing unless our stance changes again
 
 	if(auras)
@@ -199,6 +200,7 @@ Please contact me on #coderbus IRC. ~Carn x
 	else
 		M.Translate(0, 16*(default_scale-1))
 	transform = M
+
 
 var/global/list/damage_icon_parts = list()
 
@@ -252,9 +254,14 @@ var/global/list/damage_icon_parts = list()
 
 //BASE MOB SPRITE
 /mob/living/carbon/human/proc/update_body(var/update_icons=1)
-
 	//Maybe we were just gibbed
 	if (QDELETED(src))
+		return
+
+	//Our core organ is missing? This can only happen while switching species.
+	//In that case, we can't proceed, abort
+	var/obj/item/organ/external/chest = get_organ(BP_CHEST)
+	if (!chest)
 		return
 
 	var/husk_color_mod = rgb(96,88,80)
@@ -326,7 +333,7 @@ var/global/list/damage_icon_parts = list()
 		base_icon = human_icon_cache[icon_key]
 	else
 		//BEGIN CACHED ICON GENERATION.
-		var/obj/item/organ/external/chest = get_organ(BP_CHEST)
+
 		base_icon = chest.get_icon()
 
 		for(var/obj/item/organ/external/part in (organs-chest))
@@ -457,7 +464,7 @@ var/global/list/damage_icon_parts = list()
 		queue_icon_update()
 /* --------------------------------------- */
 //For legacy support.
-/mob/living/carbon/human/regenerate_icons()
+/mob/living/carbon/human/regenerate_icons(var/update_instantly = FALSE)
 	..()
 	if(HasMovementHandler(/datum/movement_handler/mob/transformation) || QDELETED(src))		return
 	update_missing_limbs()
@@ -481,13 +488,20 @@ var/global/list/damage_icon_parts = list()
 	update_inv_r_hand(0)
 	update_inv_l_hand(0)
 	update_inv_handcuffed(0)
+	update_inv_legcuffed(0)
 	update_inv_pockets(0)
 	update_fire(0)
 	update_surgery(0)
 	UpdateDamageIcon()
-	queue_icon_update()
+
 	//Hud Stuff
 	update_hud()
+
+	if (update_instantly)
+		update_icons()
+	else
+		queue_icon_update()
+
 
 /* --------------------------------------- */
 //vvvvvv UPDATE_INV PROCS vvvvvv
@@ -600,7 +614,8 @@ var/global/list/damage_icon_parts = list()
 /mob/living/carbon/human/update_inv_wear_suit(var/update_icons=1)
 
 	if(wear_suit)
-		overlays_standing[SUIT_LAYER]	= wear_suit.get_mob_overlay(src,slot_wear_suit_str)
+		var/image/first = wear_suit.get_mob_overlay(src,slot_wear_suit_str)
+		overlays_standing[SUIT_LAYER]	= first
 		update_tail_showing(0)
 	else
 		overlays_standing[SUIT_LAYER]	= null
@@ -647,6 +662,14 @@ var/global/list/damage_icon_parts = list()
 		overlays_standing[HANDCUFF_LAYER] = handcuffed.get_mob_overlay(src,slot_handcuffed_str)
 	else
 		overlays_standing[HANDCUFF_LAYER]	= null
+	if(update_icons)
+		queue_icon_update()
+
+/mob/living/carbon/human/update_inv_legcuffed(var/update_icons=1)
+	if(legcuffed)
+		overlays_standing[LEGCUFF_LAYER] = legcuffed.get_mob_overlay(src, slot_legcuffed_str)
+	else
+		overlays_standing[LEGCUFF_LAYER] = null
 	if(update_icons)
 		queue_icon_update()
 

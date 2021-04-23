@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(mercs, /datum/antagonist/mercenary, new)
-
 /datum/antagonist/mercenary
 	id = MODE_MERCENARY
 	role_text = "Mercenary"
@@ -18,6 +16,10 @@ GLOBAL_DATUM_INIT(mercs, /datum/antagonist/mercenary, new)
 	min_player_age = 14
 
 	faction = "mercenary"
+
+/datum/antagonist/mercenary/New()
+	..()
+	GLOB.mercs = src
 
 /datum/antagonist/mercenary/create_global_objectives()
 	if(!..())

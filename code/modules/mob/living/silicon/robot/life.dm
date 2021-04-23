@@ -200,7 +200,7 @@
 						src.healths.icon_state = "health6"
 		else
 			src.healths.icon_state = "health7"
-
+	/*
 	if (src.syndicate && src.client)
 		for(var/datum/mind/tra in GLOB.traitors.current_antagonists)
 			if(tra.current)
@@ -211,9 +211,9 @@
 		if(src.mind)
 			// TODO: Update to new antagonist system.
 			if(!src.mind.special_role)
-				src.mind.special_role = "traitor"
+				src.mind.set_special_role("traitor")
 				GLOB.traitors.current_antagonists |= src.mind
-
+	*/
 	if (src.cells)
 		if (src.cell)
 			var/chargeNum = Clamp(ceil(cell.percent()/25), 0, 4)	//0-100 maps to 0-4, but give it a paranoid clamp just in case.

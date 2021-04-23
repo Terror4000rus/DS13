@@ -114,6 +114,22 @@
 	embed = 0
 	sharp = 0
 
+/obj/item/projectile/bullet/shotgun/bola
+	name = "bola"
+	icon_state = "bola"
+	fire_sound = 'sound/weapons/bolathrow.ogg'
+	damage = 0
+	agony = 0
+	embed = 0
+	sharp = FALSE
+	muzzle_type = null
+
+/obj/item/projectile/bullet/shotgun/bola/on_impact(atom/movable/A)
+	..()
+	var/obj/item/weapon/legcuffs/bola/L = new (get_turf(src))
+	if(ishuman(A))
+		L.catch_human(A)
+
 //Should do about 80 damage at 1 tile distance (adjacent), and 50 damage at 3 tiles distance.
 //Overall less damage than slugs in exchange for more damage at very close range and more embedding
 /obj/item/projectile/bullet/pellet/shotgun
@@ -127,7 +143,7 @@
 /* "Rifle" rounds */
 
 /obj/item/projectile/bullet/rifle
-	armor_penetration = 25
+	armor_penetration = 10
 	penetrating = 1
 
 /obj/item/projectile/bullet/rifle/a556
@@ -145,7 +161,7 @@
 	stun = 3
 	weaken = 3
 	penetrating = 5
-	armor_penetration = 8
+	armor_penetration = 10
 	hitscan = 1 //so the PTR isn't useless as a sniper weapon
 	penetration_modifier = 1.25
 

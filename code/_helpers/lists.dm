@@ -220,6 +220,14 @@ Checks if a list has the same entries and values as an element of big.
 		return picked
 	return null
 
+//As above but weighted picking
+/proc/pickweight_n_take(list/listfrom)
+	if (listfrom.len > 0)
+		var/picked = pickweight(listfrom)
+		listfrom -= picked
+		return picked
+	return null
+
 //Returns the top(last) element from the list and removes it from the list (typical stack function)
 /proc/pop(list/listfrom)
 	if (listfrom.len > 0)
@@ -853,7 +861,7 @@ proc/dd_sortedTextList(list/incoming)
 /*
 	Outputs the entire contents of an associative list to a string including sublists. Recursive
 */
-/proc/dump_list(var/list/L, var/depth = 0)
+/proc/dump_list(var/list/L, var/depth = 0, var/assoc = TRUE)
 	var/output = ""
 	var/depthstring = ""
 
@@ -864,7 +872,7 @@ proc/dd_sortedTextList(list/incoming)
 		var/typestring = "(?)"
 		if (islist(element))
 			output += "[dump_list(element, depth+1)]"
-		else if (L[element])
+		else if (assoc && L[element])
 			var/linestring = "[depthstring][element] = "
 			if (islist(L[element]))
 				linestring += "List:\n"

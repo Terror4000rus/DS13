@@ -6,7 +6,7 @@
 
 	If it hits a mob, wraps around their neck and begins an execution move. At this point, the tongue becomes a targetable object
 */
-#define TONGUE_PROJECTILE_SPEED	4.5
+#define TONGUE_PROJECTILE_SPEED	5.5
 #define	TONGUE_OFFSET	-8,40
 #define TONGUE_RANGE	5
 /*
@@ -148,6 +148,9 @@
 	layer = BELOW_HUMAN_LAYER
 	atom_flags = 0
 	obj_flags = 0
+	max_health = 60
+	health = 60
+	mouse_opacity = TRUE
 
 //Tongue takes double damage from edged weapons
 /obj/effect/projectile/tether/tongue/take_damage(var/amount, var/damtype = BRUTE, var/user, var/used_weapon, var/bypass_resist = FALSE)
@@ -157,6 +160,9 @@
 
 	.=..()
 
+
+/obj/effect/projectile/tether/tongue/zero_health()
+	retract()
 
 /obj/effect/projectile/tether/tongue/retract(var/time = 1 SECOND, var/delete_on_finish = TRUE, var/steps = 3)
 	if (origin_atom)
@@ -173,7 +179,6 @@
 	If it returns false, the execution is denied or cancelled.
 */
 /proc/divider_tongue_safety(var/mob/living/carbon/human/user, var/mob/living/carbon/human/target)
-
 	//We only target humans
 	if (!istype(user) || !istype(target))
 		return EXECUTION_CANCEL
@@ -248,7 +253,6 @@
 	if (target.stat == DEAD)
 		return EXECUTION_CANCEL
 
-
 	return EXECUTION_CONTINUE
 
 
@@ -274,18 +278,17 @@
 	/datum/execution_stage/scream)
 
 
+	statmods = list(STATMOD_EVASION = -100, STATMOD_VIEW_RANGE = -4)
 
-	vision_mod = -4
-
+/datum/extension/execution/divider_tongue/get_range()
+	return range
 
 /datum/extension/execution/divider_tongue/safety_check()
-
 	var/obj/effect/projectile/tether/tongue/T = weapon
 
 
 
 	var/safety_result = divider_tongue_continue(user, victim)
-
 	if (safety_result == EXECUTION_SUCCESS)
 		success = TRUE
 		return EXECUTION_SUCCESS
@@ -335,6 +338,7 @@
 	host.victim.losebreath += 4
 	host.user.visible_message(SPAN_EXECUTION("[host.user] wraps their tongue around [host.victim]'s throat, constricting their airways and holding them in place!"))
 	host.user.do_shout(SOUND_SHOUT_LONG, FALSE)
+	.=..()
 
 /datum/execution_stage/wrap/stop()
 	if (user_root)
@@ -355,6 +359,7 @@
 
 
 /datum/execution_stage/strangle/enter()
+	.=..()
 	//If we've already won, skip this and just return
 	if (host.success)
 		duration =0 //Setting duration to 0 will prevent any waiting after this proc
@@ -423,6 +428,7 @@
 /datum/execution_stage/finisher/decapitate
 	duration = 0
 /datum/execution_stage/finisher/decapitate/enter()
+
 	host.user.visible_message(SPAN_EXECUTION("[host.user] makes one final pull as [host.victim]'s soft flesh yields under the assault, and their head tumbles to the floor!"))
 
 	var/obj/item/organ/external/E = host.victim.get_organ(BP_HEAD)

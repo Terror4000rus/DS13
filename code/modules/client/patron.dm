@@ -22,17 +22,34 @@
 		if(!line_list.len)
 			continue
 
+		var/key = ckey(line_list[1])
+
+		var/date
+		log_world("Doing key [key], date is [date]")
+		if (line_list.len > 1)
+			date = sanitize_date(line_list[2])	//This will return FALSE if the date does not look right
+		if (!date)
+			log_world("ERROR: Bad date found in patrons.txt for ckey [key], replacing this with a 1 month timer from now as a fallback")
+			message_admins("ERROR: Bad date found in patrons.txt for ckey [key], replacing this with a 1 month timer from now as a fallback")
+			date = current_date()
+			date = add_time_to_date(date, 28 DAYS)
+
 
 		//We now have a list containing two things:
 			//1. Ckey of a patron player
 			//2. The date up to which their patron status lasts
 
-		if (is_past_date(line_list[2]))
+		if (is_past_date(date))
 			//Their patron status has expired!
 			continue
 
+
 		//patron status is still valid!
-		GLOB.patron_keys[lowertext(line_list[1])] = line_list[2]
+		GLOB.patron_keys[key] = date
+
+	//Once we're done loading, we save again.
+	//This is because the loading process sanitises and repairs bad data
+	save_patrons()
 
 /*
 	Writes to the patrons.txt file
@@ -141,6 +158,7 @@
 	if (href_list["register"])
 		var/newkey = input(usr, "Please enter the ckey of the player you wish to register as a patron. This is not case sensitive, but please make sure the spelling is accurate.", "A New Patron", 0) as text
 		if (newkey)
+			newkey = ckey(newkey)
 			GLOB.patron_keys[newkey] = add_time_to_date(current_date(), 30 DAYS)
 			to_chat(usr, "Success, [newkey] Added as patron, an initial 30 day duration has been set, it can be farther edited")
 			save_patrons()
@@ -164,3 +182,12 @@
 
 	var/datum/extension/interactive/patrons/NH = get_or_create_extension(mob, /datum/extension/interactive/patrons)
 	NH.ui_interact(mob)
+
+
+
+/*
+	Checking procs
+*/
+/datum/preferences/proc/is_patron()
+	var/datum/player/P = get_player_from_key(client_ckey)
+	return P.patron

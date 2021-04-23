@@ -26,6 +26,7 @@
 	spawner_spawnable = FALSE
 	virus_immune = 1
 	biomass	=	120
+	require_total_biomass	=	BIOMASS_REQ_T2
 	lying_rotation = 90
 	total_health = 100
 
@@ -89,6 +90,9 @@
 	'sound/effects/footstep/twitcher_footstep_3.ogg',
 	'sound/effects/footstep/twitcher_footstep_4.ogg')
 	)
+
+	variants = null
+	outfits = null
 
 #define TWITCHER_PASSIVE	"<h2>PASSIVE: Temporal Displacement:</h2><br>\
 The twitcher is out of phase with normal time as a result of a stasis module embedded in their body. This causes them to randomly displace in a random direction periodically while moving<br>\

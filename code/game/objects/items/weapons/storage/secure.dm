@@ -172,6 +172,7 @@
 
 /obj/item/weapon/storage/secure/safe
 	name = "secure safe"
+	desc = "A wall-mounted safe with a digital locking system."
 	icon = 'icons/obj/storage.dmi'
 	icon_state = "safe"
 	icon_opened = "safe0"
@@ -184,6 +185,7 @@
 	anchored = 1.0
 	density = 0
 	cant_hold = list(/obj/item/weapon/storage/secure/briefcase)
+	var/clicksound = "button2"
 
 	New()
 		..()
@@ -192,6 +194,11 @@
 
 	attack_hand(mob/user as mob)
 		return attack_self(user)
+
+/obj/item/weapon/storage/secure/safe/CouldUseTopic(var/mob/user)
+	..()
+	if(clicksound && istype(user, /mob/living/carbon))
+		playsound(src, clicksound, VOLUME_MID)
 
 /obj/item/weapon/storage/secure/safe/CSECO/New()
 		new /obj/item/weapon/gun/projectile/automatic/pulse_heavy(src)

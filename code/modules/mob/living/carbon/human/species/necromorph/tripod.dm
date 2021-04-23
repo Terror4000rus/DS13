@@ -1,13 +1,15 @@
 #define LEAP_SHOCKWAVE_DAMAGE	10
-#define LEAP_CONE_DAMAGE	10
-#define LEAP_CONE_WEAKEN	2
+#define LEAP_CONE_DAMAGE	15
+#define LEAP_CONE_WEAKEN	3
 #define LEAP_REDUCED_COOLDOWN	3 SECONDS
-#define TONGUE_EXTEND_TIME 7 SECONDS	//How long the tongue stays out and visible after any tongue move
+#define TONGUE_EXTEND_TIME 5 SECONDS	//How long the tongue stays out and visible after any tongue move
 
 #define ARM_SWING_RANGE	4
 
 //These are used to position the arm sprite during swing
 #define TONGUE_OFFSETS	list(S_NORTH = new /vector2(6, 16), S_SOUTH = new /vector2(-2, 8), S_EAST = new /vector2(26, 10), S_WEST = new /vector2(-14, 10))
+
+
 
 /datum/species/necromorph/tripod
 	name = SPECIES_NECROMORPH_TRIPOD
@@ -30,7 +32,8 @@
 	plane = LARGE_MOB_PLANE
 	layer = LARGE_MOB_LAYER
 
-	biomass = 350
+	biomass = 400
+	require_total_biomass	=	BIOMASS_REQ_T3
 	mass = 250
 	biomass_reclamation_time	=	15 MINUTES
 	marker_spawnable = TRUE
@@ -42,7 +45,7 @@
 	bump_flag 	= HEAVY	// What are we considered to be when bumped?
 	push_flags 	= ALLMOBS	// What can we push?
 	swap_flags 	= ALLMOBS	// What can we swap place with?
-	evasion = 0	//Tripod has no natural evasion, but this value will be constantly modified by a passive ability
+	evasion = -10	//Tripod has poor natural evasion, but this value will be constantly modified by a passive ability
 	reach = 2
 
 	//Implacable
@@ -66,7 +69,7 @@
 
 	unarmed_types = list(/datum/unarmed_attack/punch/tripod)
 
-	slowdown = 5 //Note, this is a terribly awful way to do speed, bay's entire speed code needs redesigned
+	slowdown = 4.5 //Note, this is a terribly awful way to do speed, bay's entire speed code needs redesigned
 
 	//Vision
 	view_range = 12
@@ -136,7 +139,7 @@
 
 
 #define TRIPOD_PASSIVE_1	"<h2>PASSIVE: Personal Space:</h2><br>\
-The tripod needs room to manoeuvre. For each clear tile within 2 radius around it, the tripod gains bonus evasion, up to a maximum of 35 if standing in a completely open space."
+The tripod needs room to manoeuvre. For each clear tile within 2 radius around it, the tripod gains bonus evasion, up to a maximum of [TRIPOD_PERSONAL_SPACE_MAX_EVASION] if standing in a completely open space."
 
 #define TRIPOD_PASSIVE_2	"<h2>PASSIVE: Cadence:</h2><br>\
 The tripod is capable of a great top speed, but its huge mass requires some time to start moving. Tripod gains bonus movespeed for each tile it moves in the same direction, up to double speed after moving 5 tiles.<br>\
@@ -148,7 +151,8 @@ This speed bonus is lost if you stop moving in a straight line"
 <h3>Damage: 10 radial + 10 cone</h3><br>\
 <h3>Cooldown: 6 seconds</h3><br>\
 The tripod's signature ability. Leaps high into the air and briefly out of view, before landing hard at the designated spot. <br>\
-Deals a small amount of damage to victims in a 1 tile radius around the landing point, and additional damage+knockdown to a cone shaped area infront of the tripod as it lands"
+Deals a small amount of damage to victims in a 1 tile radius around the landing point, and additional damage+knockdown to a cone shaped area infront of the tripod as it lands.<br>\
+If the tripod hits a victim with the frontal cone, it gains 40% reduction on incoming damage for 3 seconds. Keep jumping around to survive longer!"
 
 
 #define TRIPOD_SWING_DESC 	"<h2>Arm Swing:</h2><br>\
@@ -224,7 +228,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 
 
 /datum/extension/cadence/tripod
-	max_speed_buff = 2.5
+	max_speed_buff = 2.25
 	max_steps = 6
 
 
@@ -242,7 +246,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	name = "Claw Strike"
 	desc = "A modestly powerful punch that is cumbersome to use"
 	delay = 20
-	damage = 14
+	damage = 13
 	airlock_force_power = 3
 	airlock_force_speed = 1.5
 	structure_damage_mult = 1.5	//Slightly annoys obstacles
@@ -257,6 +261,9 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	set name = "High Leap"
 	set desc = "Leaps to a target location, dealing damage around the landing point, and knockdown in a frontal cone"
 	set category = "Abilities"
+
+	if (get_turf(target) == get_turf(src))
+		return
 
 	.=high_leap_ability(target, windup_time = 0.8 SECOND, winddown_time = 0.8 SECOND, cooldown = 6 SECONDS, minimum_range = 3, travel_speed = 5.25)
 	if(.)
@@ -301,6 +308,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 
 			L.take_overall_damage(LEAP_CONE_DAMAGE)
 			L.Weaken(LEAP_CONE_WEAKEN)
+			set_extension(user, /datum/extension/tripod_leap_defense)
 			shake_camera(src,10,3)
 			conehit = TRUE
 
@@ -321,8 +329,15 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 
 
 
+/datum/extension/tripod_leap_defense
+	base_type = /datum/extension/tripod_leap_defense
+	flags = EXTENSION_FLAG_IMMEDIATE
+	statmods = list(STATMOD_INCOMING_DAMAGE_MULTIPLICATIVE = 0.6)
 
 
+/datum/extension/tripod_leap_defense/New(var/atom/holder)
+	.=..()
+	addtimer(CALLBACK(src, /datum/extension/proc/remove_self), 3 SECONDS)
 
 /*--------------------------------
 	Arm Swing
@@ -343,8 +358,8 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	target = target,
 	angle = 150,
 	range = ARM_SWING_RANGE,
-	duration = 0.85 SECOND,
-	windup = 0.8 SECONDS,
+	duration = 0.7 SECOND,
+	windup = 0.6 SECONDS,
 	cooldown = 3.5 SECONDS,
 	damage = 20,
 	damage_flags = DAM_EDGE,
@@ -501,18 +516,18 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	windup = 0,
 	cooldown = 6 SECONDS,
 	effect_type = /obj/effect/effect/swing/tripod_tongue,
-	damage = 18,
+	damage = 22.5,
 	damage_flags = DAM_EDGE | DAM_SHARP,
 	stages = 4,
 	swing_direction = pick(CLOCKWISE, ANTICLOCKWISE))
 
-
-	var/sound_effect = pick(list('sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_1.ogg',
-	'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_2.ogg',
-	'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_3.ogg',
-	'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_4.ogg',
-	'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_5.ogg'))
-	playsound(src, sound_effect, VOLUME_MID, TRUE)
+	if (.)
+		var/sound_effect = pick(list('sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_1.ogg',
+		'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_2.ogg',
+		'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_3.ogg',
+		'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_4.ogg',
+		'sound/effects/creatures/necromorph/tripod/tripod_tongue_lash_5.ogg'))
+		playsound(src, sound_effect, VOLUME_MID, TRUE)
 
 //Extension subtype
 /datum/extension/swing/tripod_tongue
@@ -625,7 +640,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	/datum/execution_stage/tripod_bisect)
 
 
-	vision_mod = -6
+	statmods = 	list(STATMOD_EVASION = -100, STATMOD_VIEW_RANGE = -6)
 
 
 /datum/extension/execution/tripod_kiss/interrupt()
@@ -687,8 +702,9 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 /datum/execution_stage/tripod_claw_pin
 	duration = 3 SECOND
 
-	//Rises up into the air then comes down upon the victim fast
+//Rises up into the air then comes down upon the victim fast
 /datum/execution_stage/tripod_claw_pin/enter()
+	.=..()
 	animate(host.user, pixel_y = host.user.pixel_y + 16, time = duration * 0.7)
 	animate(pixel_y = host.user.pixel_y - 18, time = duration * 0.3, easing = BACK_EASING)
 	spawn(duration*0.9)
@@ -718,6 +734,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	duration = 2 SECOND
 
 /datum/execution_stage/tripod_scream/enter()
+	.=..()
 	host.user.do_shout(SOUND_SHOUT_LONG, FALSE)
 
 
@@ -731,6 +748,7 @@ If performed successfully on a live crewman, it yields a bonus of 10kg biomass f
 	duration = 5 SECOND
 
 /datum/execution_stage/tripod_tongue_force/enter()
+	.=..()
 	//We will gradually tilt forward
 	var/angle = 30
 	if (host.user.dir & WEST)
@@ -762,6 +780,7 @@ https://bigmemes.funnyjunk.com/pictures/Long+boi_073bf6_7722185.jpg
 	duration = 2 SECOND
 
 /datum/execution_stage/finisher/tripod_tongue_pull/enter()
+	.=..()
 	var/angle = -55
 	if (host.user.dir & WEST)
 		angle *= -1
@@ -795,6 +814,7 @@ https://bigmemes.funnyjunk.com/pictures/Long+boi_073bf6_7722185.jpg
 	duration = 5 SECOND
 
 /datum/execution_stage/tripod_bisect/enter()
+	.=..()
 	var/x_offset = -48
 	var/angle = 30
 	if (host.user.dir & WEST)

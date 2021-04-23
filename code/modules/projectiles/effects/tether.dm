@@ -6,7 +6,10 @@
 	light_outer_range = 5
 	light_max_bright = 1
 	light_color = COLOR_DEEP_SKY_BLUE
+	icon = 'icons/effects/tethers.dmi'
 	icon_state = "gravity_tether"
+
+	var/retracting = FALSE
 
 	//Start and endpoints are in world pixel coordinates
 	var/vector2/start = new /vector2(0,0)
@@ -16,10 +19,9 @@
 
 	animate_movement = 0
 	lifespan = 0
-	var/base_length = WORLD_ICON_SIZE
+	var/base_length = WORLD_ICON_SIZE *2
 
-	atom_flags = ATOM_FLAG_INTANGIBLE
-	obj_flags = OBJ_FLAG_INVINCIBLE
+	atom_flags = ATOM_FLAG_INTANGIBLE | ATOM_FLAG_INDESTRUCTIBLE
 
 	//Optional. If set, we will track movements of the origin atom, regularly setting start to it
 	var/atom/movable/origin_atom
@@ -36,23 +38,32 @@
 	GLOB.moved_event.register(origin_atom, src, /obj/effect/projectile/tether/proc/origin_moved)
 
 /obj/effect/projectile/tether/proc/origin_moved()
-	var/vector2/newstart = origin_atom.get_global_pixel_loc()
-	set_ends(newstart, end, 3, 1)
+	var/vector2/newstart = origin_atom.get_toplevel_global_pixel_loc()
+	set_ends(newstart, end, TRUE, 3)
 	release_vector(newstart)
 
 /obj/effect/projectile/tether/proc/set_target(var/atom/newtarget)
 	target_atom = newtarget
 	GLOB.moved_event.register(target_atom, src, /obj/effect/projectile/tether/proc/target_moved)
 
+//This proc takes a vector2 global pixel coords to point the end at
+//It expects a source atom to already be set first.
+//If you're not using a source atom, just call set_ends directly
+/obj/effect/projectile/tether/proc/set_target_coords(var/vector2/newend)
+	var/vector2/newstart = origin_atom.get_toplevel_global_pixel_loc()
+	set_ends(newstart, newend, TRUE, 3)
+	release_vector(newstart)
+
 /obj/effect/projectile/tether/proc/target_moved()
-	var/vector2/newend = target_atom.get_global_pixel_loc()
-	set_ends(start, newend, 3, 2)
+	var/vector2/newend = target_atom.get_toplevel_global_pixel_loc()
+	set_ends(start, newend, TRUE, 3)
 	release_vector(newend)
 
 //Takes start and endpoint as vector2s of global pixel coords
 //The animate var should be either FALSE for instant, or a number of deciseconds for how long the animation should take
 //apply offset values0 = neither, 1= start only, 2 = end only, 3 = both
 /obj/effect/projectile/tether/proc/set_ends(var/vector2/_start = null, var/vector2/_end = null, var/animate = FALSE, var/apply_offset = 3)
+
 	//We copy the passed start and end vars into our own, without modifying the passed ones
 	start.x = _start.x
 	start.y = _start.y
@@ -121,6 +132,10 @@
 
 /obj/effect/projectile/tether/proc/retract(var/time = 1 SECOND, var/delete_on_finish = TRUE, var/steps = 3)
 	set waitfor = FALSE
+	if (retracting)
+		return
+	retracting = TRUE
+
 	//We'll retract the tongue to 1 pixel away from its origin
 	//This is done in several steps to prevent visual glitches
 	var/vector2/tether_direction = end - start
@@ -133,6 +148,8 @@
 	if (delete_on_finish)
 		QDEL_IN(src, time+1)
 	for (var/i = 1; i <= steps; i++)
+		if (!start)
+			break
 		var/vector2/delta = tether_direction.ToMagnitude(max(1,magnitude * (1 - (i * step_percent))))
 		var/vector2/temp_end = start + delta
 		set_ends(start, temp_end, step_time, apply_offset = FALSE)
@@ -185,7 +202,7 @@
 
 
 /obj/effect/projectile/tether/attackby(var/obj/item/C, var/mob/user)
-	if (!(obj_flags & OBJ_FLAG_INVINCIBLE))
+	if (!(atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
 		playsound(src, C.hitsound, VOLUME_MID, 1)
 		user.do_attack_animation(src)
 		take_damage(C.force, C.damtype, user, C)
@@ -204,7 +221,7 @@
 
 //Called when a structure takes damage
 /obj/effect/projectile/tether/proc/take_damage(var/amount, var/damtype = BRUTE, var/user, var/used_weapon, var/bypass_resist = FALSE)
-	if ((obj_flags & OBJ_FLAG_INVINCIBLE))
+	if ((atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
 		return
 
 	//if (!bypass_resist)
@@ -229,7 +246,7 @@
 
 //Called when health drops to zero. Parameters are the params of the final hit that broke us, if this was called from take_damage
 /obj/effect/projectile/tether/proc/zero_health(var/amount, var/damtype = BRUTE, var/user, var/used_weapon, var/bypass_resist)
-	if ((!obj_flags & OBJ_FLAG_INVINCIBLE))
+	if (!(atom_flags & ATOM_FLAG_INDESTRUCTIBLE))
 		qdel(src)
 	return TRUE
 

@@ -1,8 +1,27 @@
-# Map Merge 2
+# Map Merger
 
-**Map Merge 2** is an improvement over previous map merging scripts, with
-better merge-conflict prevention, multi-Z support, and automatic handling of
-key overflow.
+The **Map Merger** is a collection of scripts that keep this repository's maps
+in a format which is easier to track in Git and less likely to cause merge
+conflicts. When merge conflicts do occur, it can sometimes resolve them.
+
+For detailed troubleshooting instructions and other tips, visit the
+[Map Merger] wiki article.
+
+## Installation
+
+To install the [Git hooks], open the `tools/hooks/` folder and double-click
+`Install.bat`. Linux users run `tools/hooks/install.sh`.
+
+## Manual Use
+
+If using a Git GUI which is not compatible with the hooks:
+
+* Before committing, double-click `Run Before Committing.bat`
+* When a merge has map conflicts, double-click `Resolve Map Conflicts.bat`
+
+The console will show whether the operation succeeded.
+
+For more details, see the [Map Merger] wiki article.
 
 ## What Map Merging Is
 
@@ -13,30 +32,8 @@ version of the map while maintaining all the actual changes. It requires an old
 version of the map to use as a reference and a new version of the map which
 contains the desired changes.
 
-## Installation
-
-To install Python dependencies, run `requirements-install.bat`, or run
-`python -m pip install -r requirements.txt` directly. Make sure you have Python 3.5 or higher before doing so. See the [Git hooks]
-documentation to install the Git pre-commit hook which runs the map merger
-automatically, or use `tools/mapmerge/Prepare Maps.bat` to save backups before
-running `mapmerge.bat`.
-
-For up-to-date installation and detailed troubleshooting instructions, visit
-the [Map Merger] wiki article.
-
-## Usage
-
-Assuming you've already installed the Python dependencies. Follow the steps below,
-
-1. Run Prepare Maps.bat as this provides backups before making changes to a map. It also makes the mapmerger actually work.
-
-2. Edit your map.
-
-3. Run mapmerge.bat (unless you've setup the mapmerger2 hooks)
-
-4. Commit your changes and you're done!
-
-Note: Do not open the map in dreammaker before committing the results of mapmerger - this can cause dreammaker to save back into the default dmm format. If you're having issues with your map getting stuck in dmm mode, try committing and pushing the mapmerger changes before reopening in dreammaker.
+Map Merge 2 adds multi-Z support, automatic handling of key overflow, better
+merge conflict prevention, and a real merge conflict resolver.
 
 ## Code Structure
 

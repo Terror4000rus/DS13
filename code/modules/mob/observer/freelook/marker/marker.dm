@@ -6,7 +6,7 @@
 	name = "Marker"
 	icon = 'icons/obj/marker_giant.dmi'
 	icon_state = "marker_giant_dormant"
-	pixel_x = -70 //Previously 33
+	pixel_x = -33
 	plane = ABOVE_HUMAN_PLANE
 	density = TRUE
 	anchored = TRUE
@@ -51,6 +51,7 @@
 	if (active)
 		return
 	active = TRUE
+	SSnecromorph.marker_activated_at = world.time
 
 	//Any shards in the world become active
 	for (var/obj/item/marker_shard/MS in SSnecromorph.shards)
@@ -373,3 +374,11 @@
 
 /obj/machinery/marker/dismantle()
 	return
+
+
+/proc/marker_active()
+	var/obj/machinery/marker/M = get_marker()
+	if (M && M.active)
+		return TRUE
+
+	return FALSE

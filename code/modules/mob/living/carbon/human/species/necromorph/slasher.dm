@@ -70,6 +70,18 @@
 	modifier_verbs = list(KEY_CTRLALT = list(/atom/movable/proc/slasher_charge),
 	KEY_ALT = list(/mob/living/proc/slasher_dodge))
 
+
+	variants = list(SPECIES_NECROMORPH_SLASHER = list(WEIGHT = 8),
+	SPECIES_NECROMORPH_SLASHER_DESICCATED = list(WEIGHT = 2))
+
+	outfits = list(/decl/hierarchy/outfit/naked = list(),
+	/decl/hierarchy/outfit/necromorph/planet_cracker = list(),
+	/decl/hierarchy/outfit/necromorph/security = list(),
+	/decl/hierarchy/outfit/necromorph/biosuit = list(),
+	/decl/hierarchy/outfit/necromorph/biosuit/earthgov = list( PATRON = TRUE),
+	/decl/hierarchy/outfit/necromorph/doctor = list(),
+	/decl/hierarchy/outfit/necromorph/command = list())
+
 //slasher variants share a bodytype with the base slasher, same clothes fit all
 /datum/species/necromorph/slasher/get_bodytype()
 	return SPECIES_NECROMORPH_SLASHER
@@ -81,6 +93,7 @@
 	icon_template = 'icons/mob/necromorph/slasher/desiccated.dmi'
 	marker_spawnable = FALSE
 	preference_settable = FALSE
+	//mob_type = /mob/living/carbon/human/necromorph/slasherdesiccated
 
 
 
@@ -104,7 +117,7 @@
 
 /*Roughly speaking, enhanced versions of necromorphs have:
 	250% biomass cost and max health
-	150% damage on attacks and abilites
+	140% damage on attacks and abilites
 	80% windup and cooldown times, move and attack delays
 */
 /datum/species/necromorph/slasher/enhanced
@@ -115,13 +128,15 @@
 	total_health = 225
 	slowdown = 2.8
 	biomass = 125
+	require_total_biomass	=	BIOMASS_REQ_T2
 	view_range = 8
 	mass = 120
 	mob_size	= MOB_LARGE
 	bump_flag 	= HEAVY
 	spawner_spawnable = FALSE
 
-
+	variants = null
+	outfits = null
 	icon_template = 'icons/mob/necromorph/slasher_enhanced.dmi'
 	icon_lying = "_lying"
 	//lying_rotation = 90
@@ -191,7 +206,7 @@
 	edge = TRUE
 	shredding = TRUE
 	damage = 16
-	delay = 13
+	delay = 15
 	airlock_force_power = 2
 	armor_penetration = 5
 
@@ -227,10 +242,10 @@ Dodge is a skill that requires careful timing, but if used correctly, it can all
 	return TRUE
 
 /datum/unarmed_attack/blades/strong
-	damage = 24
-	delay = 11
+	damage = 22.4
+	delay = 14
 	airlock_force_power = 3
-	armor_penetration = 10
+	armor_penetration = 8
 
 /*
 	Abilities
@@ -244,7 +259,7 @@ Dodge is a skill that requires careful timing, but if used correctly, it can all
 		A = autotarget_enemy_mob(A, 2, src, 999)
 
 
-	.= charge_attack(A, _delay = 1 SECONDS, _speed = 5.0, _lifespan = 6 SECONDS)
+	.= charge_attack(A, _delay = 1 SECONDS, _speed = 5.0, _lifespan = 4 SECONDS)
 	if (.)
 		var/mob/H = src
 		if (istype(H))
@@ -266,7 +281,7 @@ Dodge is a skill that requires careful timing, but if used correctly, it can all
 	if (!isliving(A))
 		A = autotarget_enemy_mob(A, 2, src, 999)
 
-	.= charge_attack(A, _delay = 0.75 SECONDS, _speed = 5.5, _lifespan = 6 SECONDS)
+	.= charge_attack(A, _delay = 0.75 SECONDS, _speed = 5.5, _lifespan = 4 SECONDS)
 	if (.)
 		var/mob/H = src
 		if (istype(H))

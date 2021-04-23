@@ -55,12 +55,45 @@
 /atom/proc/get_global_pixel_loc()
 	return get_new_vector(((x-1)*world.icon_size) + pixel_x + 16, ((y-1)*world.icon_size) + pixel_y + 16)
 
+//A slightly less efficient wrapper for the above which accounts for the possibility of src not being on a turf
+/atom/proc/get_toplevel_global_pixel_loc()
+	if (isturf(loc))
+		return get_global_pixel_loc()
+
+	else
+		var/atom/A = get_toplevel_atom()
+		return A.get_global_pixel_loc()
+
+//Turfs cant be inside things
+/turf/get_toplevel_global_pixel_loc()
+	return get_global_pixel_loc()
+
 /atom/proc/get_global_pixel_offset(var/atom/from)
 	var/vector2/ourloc = get_global_pixel_loc()
 	var/vector2/fromloc = from.get_global_pixel_loc()
 	ourloc.SelfSubtract(fromloc)
 	release_vector(fromloc)
 	return ourloc
+
+/*
+	This rather specific proc returns the magnitude of the offset along the normal between the source and target atom
+	For example:
+		If target is directly west or east, only the X value of the offset is used
+		if target is north or south, only the Y value of offset is used
+
+		If target is on a diagonal we'll just use the whole offset, though this is inaccurate and not final behaviour
+		Future todo: Project diagonals onto a 45 degree line
+*/
+/atom/proc/get_normal_pixel_offset(var/atom/from)
+	var/vector2/offset = get_global_pixel_offset(from)
+	if(x == from.x)
+		offset.x = 0
+
+	if (y == from.y)
+		offset.y = 0
+
+	.= offset.Magnitude()
+	release_vector(offset)
 
 /atom/proc/get_global_pixel_offset_from_vector(var/vector2/fromloc)
 	var/vector2/ourloc = get_global_pixel_loc()
@@ -210,11 +243,27 @@
 	pixel_y = 0
 	offset_to(target, distance)
 
-/atom/proc/offset_to(var/atom/target, var/distance)
-	var/vector2/delta = get_offset_to(target, distance)
-	pixel_x += delta.x
-	pixel_y += delta.y
-	release_vector(delta)
+/atom/proc/offset_to(var/atom/target, var/distance, var/square = FALSE)
+	if (!square)
+		var/vector2/delta = get_offset_to(target, distance)
+		pixel_x += delta.x
+		pixel_y += delta.y
+		release_vector(delta)
+	else
+		var/x_mult = 0
+		var/y_mult = 0
+		if (x > target.x)
+			x_mult = -1
+		else if (x < target.x)
+			x_mult = 1
+
+		if (y > target.y)
+			y_mult = -1
+		else if (y < target.y)
+			y_mult = 1
+
+		pixel_x += distance * x_mult
+		pixel_y += distance * y_mult
 
 
 /atom/proc/get_offset_to(var/atom/target, var/distance)
@@ -243,11 +292,15 @@
 
 
 
+
+
+
 /*
 	Pixel motion
 	This function moves an object by a number of pixels supplied as a vector2 delta
 
-	In the process of moving, the object's tile location will be updated if it enters a new tile, and it will stop on the edge and trigger bumps if not
+	In the process of moving, the object's tile location will be updated if it enters a new tile, and it will stop on the edge and trigger
+	bumps if it fails to enter a tile
 
 */
 /atom/movable/proc/pixel_move(var/vector2/position_delta, var/time_delta)

@@ -85,10 +85,7 @@
 	if(eyeobj)
 		eyeobj.possess(src)
 
-	l_plane = new(null, client)
-	l_general = new(null, client)
-	client.screen += l_plane
-	client.screen += l_general
+	refresh_lighting_overlays()
 
 	refresh_client_images()
 	reload_fullscreen() // Reload any fullscreen overlays this mob has.
@@ -96,7 +93,28 @@
 	add_click_catcher()
 	update_action_buttons()
 	GetClickHandlers()	//Just call this to create the default handler, prevents an unpleasant edge case where it never gets created a
-
+	update_popup_menu()	//Update the existence of the rightclick menu, or lack thereof
 	//set macro to normal incase it was overriden (like cyborg currently does)
 	winset(src, null, "mainwindow.macro=macro hotkey_toggle.is-checked=false input.focus=true input.background-color=#d3b5b5")
 
+
+/*
+	This updates lighting, darkvision, and skybox
+	Called on login and when switching species
+*/
+/mob/proc/refresh_lighting_overlays()
+	if (!client)
+		return
+
+	if (l_plane)
+		client.screen -= l_plane
+		QDEL_NULL(l_plane)
+	if (l_general)
+		client.screen -= l_general
+		QDEL_NULL(l_general)
+
+	l_plane = new(null, client)
+	l_general = new(null, client)
+	client.screen += l_plane
+	client.screen += l_general
+	client.update_skybox(TRUE)

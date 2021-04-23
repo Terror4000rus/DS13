@@ -17,6 +17,7 @@
 		'sound/effects/footstep/catwalk5.ogg')
 
 	can_block_movement = FALSE //It IS the floor
+	atom_flags = ATOM_FLAG_UNTARGETABLE
 
 /obj/structure/catwalk/register_zstructure(var/turf/T)
 	LAZYSET(T.zstructures, src, 1)	//Ladders have a ztransition priority of 2 to overrule other things
@@ -188,3 +189,14 @@
 /obj/effect/catwalk_plated/dank
 	icon_state = "catwalk_platedgrim"
 	plating_type = /decl/flooring/tiling/mono/dark
+
+
+
+
+/*
+	Rail for trams/monorail system
+*/
+/obj/structure/catwalk/rail
+	name = "rail"
+	plane = BELOW_TURF_PLANE
+	simulated = FALSE	//This prevents it from being moved with the tram

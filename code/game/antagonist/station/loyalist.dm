@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(loyalists, /datum/antagonist/loyalists, new)
-
 /datum/antagonist/loyalists
 	id = MODE_LOYALIST
 	role_text = "Head Loyalist"
@@ -30,10 +28,11 @@ GLOBAL_DATUM_INIT(loyalists, /datum/antagonist/loyalists, new)
 	faction = "loyalist"
 
 /datum/antagonist/loyalists/Initialize()
-	..()
+	. = ..()
 	welcome_text = "You belong to the [GLOB.using_map.company_name], body and soul. Preserve its interests against the conspirators amongst the crew."
 	faction_welcome = "Preserve [GLOB.using_map.company_short]'s interests against the traitorous recidivists amongst the crew. Protect the heads of staff with your life."
 	faction_descriptor = "[GLOB.using_map.company_name]"
+	GLOB.loyalists = src
 
 /datum/antagonist/loyalists/create_global_objectives()
 	if(!..())

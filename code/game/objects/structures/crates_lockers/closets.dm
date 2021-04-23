@@ -22,8 +22,8 @@
 	var/storage_capacity = 1.5 * MOB_MEDIUM //This is so that someone can't pack hundreds of items in a locker/crate
 							  //then open it in a populated area to crash clients.
 	var/max_mob_size = MOB_MEDIUM
-	var/open_sound = 'sound/effects/closet_open.ogg'
-	var/close_sound = 'sound/effects/closet_close.ogg'
+	var/open_sound = 'sound/effects/locker_open.ogg'
+	var/close_sound = 'sound/effects/locker_close.ogg'
 	hitsound = 'sound/effects/grillehit.ogg'
 
 	var/storage_types = CLOSET_STORAGE_ALL
@@ -35,6 +35,8 @@
 	var/locked = FALSE
 
 	mass = 15
+
+	var/stored_units = 0
 
 /obj/structure/closet/meddle()
 	src.toggle()
@@ -105,8 +107,10 @@
 	for(var/atom/movable/AM in src)
 		AM.dropInto(loc)
 
+	stored_units = 0
+
 /obj/structure/closet/proc/store_contents()
-	var/stored_units = 0
+
 
 	if(storage_types & CLOSET_STORAGE_ITEMS)
 		stored_units += store_items(stored_units)

@@ -1,5 +1,3 @@
-GLOBAL_DATUM_INIT(raiders, /datum/antagonist/raider, new)
-
 /datum/antagonist/raider
 	id = MODE_RAIDER
 	role_text = "Raider"
@@ -67,7 +65,6 @@ GLOBAL_DATUM_INIT(raiders, /datum/antagonist/raider, new)
 		/obj/item/weapon/gun/energy/toxgun,
 		/obj/item/weapon/gun/energy/stunrevolver,
 		/obj/item/weapon/gun/energy/ionrifle,
-		/obj/item/weapon/gun/energy/taser,
 		/obj/item/weapon/gun/energy/crossbow/largecrossbow,
 		/obj/item/weapon/gun/launcher/crossbow,
 		/obj/item/weapon/gun/launcher/grenade/loaded,
@@ -95,6 +92,10 @@ GLOBAL_DATUM_INIT(raiders, /datum/antagonist/raider, new)
 		/obj/item/clothing/accessory/storage/holster/waist,
 		/obj/item/clothing/accessory/storage/holster/hip
 		)
+
+/datum/antagonist/raider/New()
+	..()
+	GLOB.raiders = src
 
 /datum/antagonist/raider/update_access(var/mob/living/player)
 	for(var/obj/item/weapon/storage/wallet/W in player.contents)

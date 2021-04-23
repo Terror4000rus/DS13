@@ -2,7 +2,7 @@
 	Make sure you don't modify these vectors.
 	You should treat all vectors as immutable in general.
 */
-var Vector2/Vector2 = new
+GLOBAL_REAL(Vector2, /Vector2) = new
 
 Vector2
 	var
@@ -73,9 +73,8 @@ Vector2
 			return get_new_vector(0, 0)
 
 	proc
-		VecDirectionBetween(var/vector2/A, var/vector2/B)
+		VectorBetween(var/vector2/A, var/vector2/B)
 			var/vector2/delta = get_new_vector(B.x - A.x, B.y - A.y)
-			delta.SelfToMagnitude(1)
 			return delta
 
 	proc
@@ -87,6 +86,8 @@ Vector2
 			var/list/returnlist = list("direction" = delta.ToMagnitude(1), "magnitude" = delta.Magnitude())
 			release_vector(delta)
 			return returnlist
+
+	//TODO: Rename this, it is misleading. What it actually does is rescales the directional vector to a specified magnitude and returns that
 	proc
 		MagnitudeBetween(var/atom/A, var/atom/B, var/magnitude)
 			var/vector2/delta = get_new_vector(B.x - A.x, B.y - A.y)
@@ -110,4 +111,3 @@ Vector2
 			if (A)
 				return (A.x + A.y) / 2
 			return 0
-

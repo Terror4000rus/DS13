@@ -11,7 +11,8 @@
 			return -2
 		return -1
 
-
+	if(legcuffed)
+		tally += legcuffed.get_onmob_delay()
 
 	if(CE_SPEEDBOOST in chem_effects)
 		tally -= chem_effects[CE_SPEEDBOOST]
@@ -79,7 +80,8 @@
 
 	tally += config.human_delay
 	tally /= get_move_speed_factor()
-
+	if(lying) //Crawling, it's slower
+		tally /= species.lying_speed_factor
 	return tally
 
 /mob/living/carbon/human/size_strength_mod()
@@ -160,9 +162,19 @@
 			if(2)
 				visible_message("<span class='notice'>\The [src] looks out of breath!</span>", "<span class='notice'>You are out of breath!</span>")
 
-
-
-
 /mob/living/carbon/human/set_move_intent(var/decl/move_intent/M)
 	. = ..()
-	step_interval = M.footstep_interval
+	if(.)
+		step_interval = M.footstep_interval
+
+
+//Returns what percentage of the limbs we use for movement, are still attached
+/mob/living/carbon/human/proc/get_locomotive_limb_percent()
+
+	var/current = length(get_locomotion_limbs(FALSE))
+	var/max = LAZYLEN(species.locomotion_limbs)
+
+	if (max > 0)
+		return current / max
+
+	return 1

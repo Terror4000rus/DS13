@@ -632,6 +632,16 @@ proc/ColorTone(rgb, tone)
 
 
 /*
+	Datum level wrapper, override as desired
+	Intended for species
+*/
+/datum/proc/get_flat_icon(defdir=2, deficon=null, defstate="", defblend=BLEND_DEFAULT, always_use_defdir = 0)
+	return
+
+/atom/get_flat_icon(defdir=2, deficon=null, defstate="", defblend=BLEND_DEFAULT, always_use_defdir = 0)
+	return getFlatIcon(src, defdir, deficon, defstate, defblend, always_use_defdir)
+
+/*
 Get flat icon by DarkCampainger. As it says on the tin, will return an icon with all the overlays
 as a single icon. Useful for when you want to manipulate an icon via the above as overlays are not normally included.
 The _flatIcons list is a cache for generated icon files.
@@ -966,3 +976,67 @@ proc/generate_image(var/tx as num, var/ty as num, var/tz as num, var/range as nu
 /mob/living/carbon/human/get_icon_size()
 	var/icon/I = new(species.icon_template)
 	return get_new_vector(I.Width(), I.Height())
+
+
+/proc/flick_overlay(image/I, list/show_to, duration)
+	for(var/client/C in show_to)
+		C.images += I
+	spawn(duration)
+		for(var/client/C in show_to)
+			C.images -= I
+
+//Finds mobs near the source and shows them an overlay
+/proc/flick_overlay_source(image/I, var/atom/source, duration)
+	source = get_turf(source)
+	var/range = world.view + 4
+	//First lets figure out how far away to find mobs.
+	//The longer the duration, the higher the chance of someone walking in while its playing, so we'll search farther at high duration
+	range += Ceiling(duration * 0.2)
+
+	var/list/clients = list()
+
+	for (var/mob/M in GLOB.player_list)	//We only care about people with clients here
+		if (get_dist(get_turf(M), source)	<= range)
+			clients.Add(M.get_client())
+
+	flick_overlay(I, clients, duration)
+
+
+
+
+/*
+	Use the icon proc to produce an icon to pass in here
+*/
+/atom/proc/flick_overlay_icon(var/duration, var/icon/I)
+
+
+	var/obj/flick_overlay/OF = new(src)
+	OF.icon = I
+	OF.plane = src.plane
+	OF.layer = src.layer
+	OF.set_host(src, duration)
+	return OF
+
+
+
+/*
+	Flick object
+*/
+/obj/flick_overlay
+	density = FALSE
+	mouse_opacity = 0
+	alpha = 255
+	var/atom/host
+
+/obj/flick_overlay/proc/set_host(var/atom/host, var/lifetime)
+	src.host = host
+	src.host:vis_contents += src
+
+	if (lifetime)
+		QDEL_IN(src, lifetime)
+
+/obj/flick_overlay/Destroy()
+	if (!QDELETED(host))
+		host:vis_contents -= src
+
+	.=..()

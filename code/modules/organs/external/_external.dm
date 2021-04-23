@@ -736,6 +736,8 @@ Note that amputating the affected organ does in fact remove the infection from t
 
 			// slow healing
 			var/heal_amt = species.healing_factor
+			if (damtype == BURN)
+				heal_amt *= species.burn_heal_factor
 
 			//we only update wounds once in [wound_update_accuracy] ticks so have to emulate realtime
 			heal_amt *= wound_update_accuracy
@@ -1004,6 +1006,11 @@ Note that amputating the affected organ does in fact remove the infection from t
 			"\The [holder.handcuffed.name] falls off of [holder.name].",\
 			"\The [holder.handcuffed.name] falls off you.")
 		holder.drop_from_inventory(holder.handcuffed)
+	if (holder.legcuffed && (body_part in list(LEG_LEFT, LEG_RIGHT)))
+		holder.visible_message(\
+			"\The [holder.legcuffed.name] falls off of [holder.name].",\
+			"\The [holder.legcuffed.name] falls off you.")
+		holder.drop_from_inventory(holder.legcuffed)
 
 // checks if all wounds on the organ are bandaged
 /obj/item/organ/external/proc/is_bandaged()
@@ -1232,7 +1239,7 @@ obj/item/organ/external/proc/remove_clamps()
 	supplied_wound.embedded_objects += W
 	implants += W
 	LAZYADD(owner.implants,W)
-	owner.verbs += /mob/proc/yank_out_object
+	owner.verbs += /mob/proc/yank_out_object_verb
 	W.add_blood(owner)
 	if(ismob(W.loc))
 		var/mob/living/H = W.loc
